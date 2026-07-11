@@ -1,0 +1,16 @@
+{
+  "name": "Sesi. — Ruang untuk meluah",
+  "short_name": "Sesi.",
+  "description": "Ruang selamat untuk meluah perasaan dan berbual dengan AI yang faham.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#161210",
+  "theme_color": "#161210",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

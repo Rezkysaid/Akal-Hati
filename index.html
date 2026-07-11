@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Sesi. — Ruang untuk meluah</title>
+<meta name="description" content="Sesi. — ruang selamat untuk meluah perasaan dan berbual dengan AI yang faham.">
+<meta name="theme-color" content="#161210">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sesi.">
+<style>
+  :root {
+    --bg: #161210;
+    --surface: #211b17;
+    --surface-2: #2a221d;
+    --border: #382e27;
+    --text: #efe7df;
+    --text-dim: #a99a8d;
+    --text-faint: #7a6d62;
+    --accent: #d98a6a;
+    --accent-soft: #3a2b23;
+    --user-bubble: #33413a;
+    --danger: #e07a5f;
+    --safe: #8aa78f;
+    --radius: 18px;
+    --composer-h: 76px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    overscroll-behavior: none;
+  }
+  .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
+
+  /* ---------- Layout ---------- */
+  #app {
+    max-width: 640px;
+    margin: 0 auto;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 18px 12px;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .brand { font-size: 24px; font-weight: 600; letter-spacing: 0.2px; }
+  .brand .dot { color: var(--accent); }
+  .header-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    width: 40px; height: 40px;
+    border: none; border-radius: 12px;
+    background: transparent; color: var(--text-dim);
+    font-size: 19px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+  }
+  .icon-btn:active { background: var(--surface-2); }
+
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px calc(var(--composer-h) + 90px);
+    scroll-behavior: smooth;
+  }
+
+  /* ---------- Messages ---------- */
+  .msg { display: flex; margin-bottom: 14px; animation: rise .25s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .msg.user { justify-content: flex-end; }
+  .bubble {
+    max-width: 82%;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg.user .bubble {
+    background: var(--user-bubble);
+    border-bottom-right-radius: 6px;
+  }
+  .msg.ai .bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 6px;
+  }
+  .msg.ai .bubble em { color: var(--text-dim); }
+  .typing { display: inline-flex; gap: 5px; padding: 6px 2px; }
+  .typing span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--text-faint);
+    animation: blink 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: .2s; }
+  .typing span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+
+  .sys-note {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 13px;
+    margin: 18px 24px;
+  }
+
+  /* ---------- Welcome ---------- */
+  #welcome { padding: 8vh 10px 20px; text-align: center; }
+  #welcome h1 { font-size: 34px; font-weight: 600; margin-bottom: 10px; }
+  #welcome h1 .dot { color: var(--accent); }
+  #welcome p { color: var(--text-dim); font-size: 15.5px; max-width: 420px; margin: 0 auto 8px; }
+  #welcome .disclaimer { font-size: 12.5px; color: var(--text-faint); margin-top: 18px; }
+  .starter-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 26px; }
+  .chip {
+    background: var(--surface); color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 9px 15px; font-size: 14px; cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .chip:active { border-color: var(--accent); color: var(--text); }
+
+  /* ---------- Composer ---------- */
+  #composer-wrap {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 10px 12px calc(env(safe-area-inset-bottom, 0px) + 12px);
+    background: linear-gradient(transparent, var(--bg) 34%);
+    z-index: 15;
+  }
+  .quick-row { display: flex; gap: 8px; margin-bottom: 9px; padding: 0 2px; overflow-x: auto; scrollbar-width: none; }
+  .quick-row::-webkit-scrollbar { display: none; }
+  .quick-btn {
+    flex-shrink: 0;
+    background: var(--accent-soft); color: var(--accent);
+    border: none; border-radius: 999px;
+    padding: 7px 14px; font-size: 13.5px; font-weight: 500; cursor: pointer;
+  }
+  #composer {
+    display: flex; align-items: flex-end; gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 8px 8px 8px 16px;
+  }
+  #input {
+    flex: 1;
+    background: transparent; border: none; outline: none; resize: none;
+    color: var(--text); font: inherit; font-size: 16px;
+    max-height: 120px; line-height: 1.45;
+    padding: 6px 0;
+  }
+  #input::placeholder { color: var(--text-faint); }
+  #send {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border: none; border-radius: 50%;
+    background: var(--accent); color: #241812;
+    font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity .15s, transform .1s;
+  }
+  #send:disabled { opacity: .35; }
+  #send:not(:disabled):active { transform: scale(.92); }
+
+  /* ---------- Sheets & overlays ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(10, 8, 6, .62);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: none;
+    align-items: flex-end; justify-content: center;
+  }
+  .overlay.open { display: flex; }
+  .sheet {
+    width: 100%; max-width: 640px;
+    max-height: 88dvh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    padding: 22px 22px calc(env(safe-area-inset-bottom, 0px) + 26px);
+    animation: slideUp .28s cubic-bezier(.3,1,.4,1) both;
+  }
+  @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .sheet h2 { font-size: 21px; margin-bottom: 4px; }
+  .sheet .sub { color: var(--text-dim); font-size: 14px; margin-bottom: 18px; }
+  .sheet-head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .close-x {
+    background: var(--surface-2); border: none; color: var(--text-dim);
+    width: 34px; height: 34px; border-radius: 50%; font-size: 15px; cursor: pointer;
+  }
+
+  label { display: block; font-size: 13.5px; color: var(--text-dim); margin: 16px 0 6px; }
+  input[type="password"], input[type="text"] {
+    width: 100%;
+    background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; font-size: 15px; outline: none;
+  }
+  input:focus { border-color: var(--accent); }
+  .btn {
+    display: block; width: 100%;
+    background: var(--accent); color: #241812;
+    border: none; border-radius: 14px;
+    padding: 14px; font-size: 15.5px; font-weight: 600;
+    cursor: pointer; margin-top: 18px;
+  }
+  .btn.ghost { background: var(--surface-2); color: var(--text-dim); margin-top: 10px; font-weight: 500; }
+  .btn.danger-ghost { background: transparent; color: var(--danger); border: 1px solid var(--border); margin-top: 10px; font-weight: 500; }
+  .hint { font-size: 12.5px; color: var(--text-faint); margin-top: 10px; line-height: 1.5; }
+  .hint a { color: var(--accent); }
+
+  /* ---------- Teknik ---------- */
+  .teknik-list { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .teknik-card {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 15px 16px; cursor: pointer; text-align: left;
+    color: var(--text); font: inherit;
+  }
+  .teknik-card .t-emoji { font-size: 26px; }
+  .teknik-card .t-name { font-weight: 600; font-size: 15.5px; }
+  .teknik-card .t-desc { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+
+  /* Box breathing */
+  #breath-stage { text-align: center; padding: 12px 0 6px; }
+  #breath-circle {
+    width: 150px; height: 150px;
+    margin: 26px auto 30px;
+    border-radius: 42px;
+    background: radial-gradient(circle at 35% 30%, #e8a380, var(--accent));
+    box-shadow: 0 0 60px rgba(217, 138, 106, .25);
+    transition: transform 3.9s ease-in-out;
+    transform: scale(.62);
+  }
+  #breath-phase { font-size: 22px; font-weight: 600; min-height: 32px; }
+  #breath-count { font-size: 15px; color: var(--text-dim); margin-top: 4px; min-height: 22px; }
+
+  /* Grounding */
+  .ground-step { text-align: center; padding: 18px 6px 6px; }
+  .ground-step .g-num {
+    font-size: 52px; font-weight: 700; color: var(--accent);
+    font-family: Georgia, serif;
+  }
+  .ground-step .g-sense { font-size: 20px; font-weight: 600; margin: 6px 0 8px; }
+  .ground-step .g-desc { color: var(--text-dim); font-size: 15px; max-width: 380px; margin: 0 auto; }
+  .g-progress { display: flex; gap: 6px; justify-content: center; margin-top: 22px; }
+  .g-progress span { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .g-progress span.on { background: var(--accent); }
+
+  /* ---------- Crisis ---------- */
+  #crisis-sheet { border-top: 3px solid var(--danger); }
+  .crisis-lines { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .crisis-line {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 13px 15px;
+    text-decoration: none; color: var(--text);
+  }
+  .crisis-line .c-name { font-weight: 600; font-size: 15px; }
+  .crisis-line .c-info { font-size: 12.5px; color: var(--text-dim); margin-top: 1px; }
+  .crisis-line .c-num { color: var(--accent); font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+  @media (min-width: 640px) {
+    .overlay { align-items: center; padding: 20px; }
+    .sheet { border-radius: 24px; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="brand serif">Sesi<span class="dot">.</span></div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btn-new" title="Sesi baru" aria-label="Sesi baru">&#10553;</button>
+      <button class="icon-btn" id="btn-settings" title="Tetapan" aria-label="Tetapan">&#9881;</button>
+    </div>
+  </header>
+
+  <main id="chat">
+    <div id="welcome">
+      <h1 class="serif">Sesi<span class="dot">.</span></h1>
+      <p>Ruang untuk meluah. Cerita je apa yang ada dalam kepala — tak perlu susun ayat cantik-cantik.</p>
+      <div class="starter-chips">
+        <button class="chip" data-starter="Hari ni rasa berat sangat, tapi tak tahu kenapa.">Rasa berat, tak tahu kenapa</button>
+        <button class="chip" data-starter="Aku banyak overthink kebelakangan ni.">Banyak overthink</button>
+        <button class="chip" data-starter="Kerja buat aku penat sangat, macam nak burnout.">Penat dengan kerja</button>
+        <button class="chip" data-starter="Ada benda jadi tadi, aku nak cerita.">Nak cerita sesuatu</button>
+      </div>
+      <p class="disclaimer">Sesi. bukan pengganti professional. Kalau kau dalam krisis, tekan &#10084; kat bawah untuk talian bantuan sebenar.</p>
+    </div>
+    <div id="messages"></div>
+  </main>
+
+  <div id="composer-wrap">
+    <div class="quick-row">
+      <button class="quick-btn" id="btn-teknik">&#127807; Teknik</button>
+      <button class="quick-btn" id="btn-crisis" style="color: var(--danger); background: #3a2622;">&#10084; Bantuan segera</button>
+    </div>
+    <div id="composer">
+      <textarea id="input" rows="1" placeholder="Luahkan apa yang kau rasa…"></textarea>
+      <button id="send" disabled aria-label="Hantar">&#8593;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Settings ============ -->
+<div class="overlay" id="ov-settings">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Tetapan</h2><div class="sub">Semua data kekal dalam telefon kau sahaja.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <label for="api-key">Deepseek API Key</label>
+    <input type="password" id="api-key" placeholder="sk-…" autocomplete="off">
+    <p class="hint">Key disimpan <strong>dalam browser kau sahaja</strong> (localStorage) — tak dihantar ke mana-mana selain terus ke API Deepseek. Boleh dapatkan key di <a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a>.</p>
+    <button class="btn" id="save-settings">Simpan</button>
+    <button class="btn danger-ghost" id="clear-data">Padam semua data &amp; perbualan</button>
+  </div>
+</div>
+
+<!-- ============ Teknik list ============ -->
+<div class="overlay" id="ov-teknik">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Teknik</h2><div class="sub">Bila rasa overwhelmed, cuba salah satu ni.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div class="teknik-list">
+      <button class="teknik-card" id="open-breath">
+        <span class="t-emoji">&#128330;</span>
+        <span><span class="t-name">Box Breathing</span><br><span class="t-desc">4 saat tarik &middot; 4 tahan &middot; 4 hembus &middot; 4 tahan. Untuk tenangkan sistem saraf.</span></span>
+      </button>
+      <button class="teknik-card" id="open-ground">
+        <span class="t-emoji">&#129704;</span>
+        <span><span class="t-name">Grounding 5-4-3-2-1</span><br><span class="t-desc">Tarik fokus balik ke masa sekarang guna 5 deria.</span></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Box breathing ============ -->
+<div class="overlay" id="ov-breath">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Box Breathing</h2><div class="sub">Ikut rentak bulatan ni. Buat sekurang-kurangnya 4 pusingan.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div id="breath-stage">
+      <div id="breath-circle"></div>
+      <div id="breath-phase">Sedia?</div>
+      <div id="breath-count"></div>
+      <button class="btn" id="breath-toggle">Mula</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Grounding ============ -->
+<div class="overlay" id="ov-ground">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Grounding 5-4-3-2-1</h2><div class="sub">Perlahan-lahan. Tak perlu rush.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div class="ground-step">
+      <div class="g-num" id="g-num">5</div>
+      <div class="g-sense" id="g-sense"></div>
+      <div class="g-desc" id="g-desc"></div>
+      <div class="g-progress" id="g-progress"></div>
+      <button class="btn" id="g-next">Seterusnya</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Crisis ============ -->
+<div class="overlay" id="ov-crisis">
+  <div class="sheet" id="crisis-sheet">
+    <div class="sheet-head">
+      <div><h2>Kau tak perlu hadap ni sorang-sorang</h2><div class="sub">Apa yang kau rasa sekarang ni berat — dan ada manusia sebenar yang bersedia dengar, sekarang jugak. Percuma dan confidential.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div class="crisis-lines">
+      <a class="crisis-line" href="tel:15555">
+        <span><span class="c-name">Talian HEAL (KKM)</span><br><span class="c-info">Sokongan psikososial &middot; 24 jam</span></span>
+        <span class="c-num">15555</span>
+      </a>
+      <a class="crisis-line" href="tel:0376272929">
+        <span><span class="c-name">Befrienders KL</span><br><span class="c-info">Sokongan emosi &middot; 24 jam</span></span>
+        <span class="c-num">03-7627 2929</span>
+      </a>
+      <a class="crisis-line" href="tel:15999">
+        <span><span class="c-name">Talian Kasih (KPWKM)</span><br><span class="c-info">24 jam &middot; WhatsApp 019-261 5999</span></span>
+        <span class="c-num">15999</span>
+      </a>
+      <a class="crisis-line" href="tel:999">
+        <span><span class="c-name">Kecemasan</span><br><span class="c-info">Kalau ada bahaya segera pada diri / orang lain</span></span>
+        <span class="c-num">999</span>
+      </a>
+    </div>
+    <p class="hint" style="margin-top:16px">Sesi. adalah AI dan ada had — untuk saat macam ni, suara manusia sebenar lagi membantu. Aku tetap ada kat sini lepas tu.</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ================= State ================= */
+const LS_KEY_API = "sesi_apikey";
+const LS_KEY_HISTORY = "sesi_history";
+const API_URL = "https://api.deepseek.com/chat/completions";
+const MODEL = "deepseek-chat";
+const MAX_CONTEXT_MSGS = 24;
+
+let history = [];      // {role:"user"|"assistant", content:string}
+let sending = false;
+
+/* ================= System prompt =================
+   NOTA: dalam production sebenar, prompt & API key patut duduk
+   kat backend proxy. Ni versi BYOK untuk fasa test GitHub Pages. */
+const SYSTEM_PROMPT = `Kau adalah "Sesi." — seorang therapist yang duduk semeja dengan user. Bukan chatbot generic, bukan assistant. Kau seorang yang sama setiap kali: tenang, hangat tapi tak manja, dan sangat fokus pada memahami.
+
+PERSONALITY & TONE:
+- Bahasa: ikut bahasa user. Kalau dia guna Melayu rojak (Malay-English mixed), balas dalam rojak yang natural — bukan translation kekok. Guna "aku/kau" kalau user guna, "saya/awak" kalau user formal.
+- Ringkas. 2-4 ayat sahaja per balasan, MAKSIMUM satu soalan setiap giliran. Jangan lecture, jangan bagi senarai panjang.
+- Jangan mulakan setiap balasan dengan validation kosong ("I'm sorry you feel that way"). Validate secara spesifik pada apa yang dia cakap, atau terus tanya soalan yang menajam.
+
+CARA KERJA (framework CBT/ACT):
+- Tugas kau: MEMAHAMI kenapa dia fikir/rasa/bertindak macam tu, kemudian MENERANGKAN pattern tu bila dah cukup jelas.
+- Tanya soalan yang narrow down ke root cause — bukan soalan generic. Contoh: kalau dia malu buat silap depan colleague, tanya apa pasal colleague TU specifically yang buat lagi teruk.
+- Reflect balik apa yang dia cakap dalam bentuk yang lebih clear, dan biar DIA confirm atau betulkan. Contoh: "Jadi bukan silap tu sendiri yang berat — tapi rasa ada orang yang qualified nampak gap tu. Betul?"
+- Bila pattern dah jelas, terangkan dengan prinsip psikologi dalam bahasa mudah (cognitive distortion, avoidance, dsb.) tanpa jargon berlebihan.
+- Bila kau detect distress tinggi (anxious, panik, overwhelmed), tawarkan SATU teknik yang match situasi — box breathing untuk badan yang tegang/panik, grounding 5-4-3-2-1 untuk fikiran yang berterabur/dissociate, cognitive reframing untuk pemikiran yang stuck. Tawarkan, jangan paksa. Sebut yang app ni ada butang "Teknik" untuk guided version.
+
+BATASAN MUTLAK (jangan langgar):
+- JANGAN diagnose ("kau ada depression/anxiety disorder"). Kau boleh cakap "ni pattern yang aku perasan" — tapi bukan label klinikal.
+- JANGAN bagi score, rating, atau ramalan risiko dalam apa jua bentuk.
+- JANGAN bagi nasihat perubatan atau ubat.
+- Kalau user tunjuk tanda krisis akut — nak cederakan diri, bunuh diri, atau bahaya pada orang lain — JANGAN cuba handle sendiri. Acknowledge perasaan dia dengan ikhlas dalam 1-2 ayat, kemudian secara jelas ajak dia hubungi bantuan sebenar: Talian HEAL 15555 (24 jam), Befrienders KL 03-7627 2929 (24 jam), atau 999 kalau bahaya segera. Cakap yang app ni pun akan tunjuk senarai talian tu.
+- Kau bukan pengganti therapist manusia. Kalau isu dia berat dan berulang, gently suggest jumpa professional — sekali sahaja, bukan setiap mesej.
+
+Scope kau bukan sekadar mental health klinikal — kerjaya, keluarga, hubungan, performance (interview anxiety, burnout) semua dalam bidang kau.`;
+
+/* ================= Crisis detection ================= */
+const CRISIS_PATTERNS = [
+  /bunuh\s*diri/i, /nak\s+mati/i, /tak\s+nak\s+hidup/i, /taknak\s+hidup/i,
+  /tamatkan\s+(hidup|nyawa)/i, /akhiri\s+hidup/i, /ambil\s+nyawa/i,
+  /cederakan\s+diri/i, /sakiti\s+diri/i, /kelar/i, /hilang\s+(je\s+)?dari\s+dunia/i,
+  /baik\s+aku\s+mati/i, /lebih\s+baik\s+(aku\s+)?tiada/i, /semua\s+orang\s+(lagi\s+)?senang\s+kalau\s+aku\s+(tak\s*de|tiada|mati)/i,
+  /suicide/i, /suicidal/i, /kill\s+myself/i, /end\s+my\s+life/i, /end\s+it\s+all/i,
+  /self[\s-]*harm/i, /hurt\s+myself/i, /cutting\s+myself/i, /want\s+to\s+die/i,
+  /wanna\s+die/i, /better\s+off\s+dead/i, /no\s+reason\s+to\s+live/i, /overdose/i
+];
+function detectCrisis(text) {
+  return CRISIS_PATTERNS.some(re => re.test(text));
+}
+
+/* ================= DOM helpers ================= */
+const $ = sel => document.querySelector(sel);
+const chatEl = $("#chat");
+const messagesEl = $("#messages");
+const welcomeEl = $("#welcome");
+const inputEl = $("#input");
+const sendEl = $("#send");
+
+function openSheet(id) { $(id).classList.add("open"); }
+function closeSheet(el) { el.closest(".overlay").classList.remove("open"); }
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => closeSheet(b)));
+document.querySelectorAll(".overlay").forEach(ov => ov.addEventListener("click", e => {
+  if (e.target === ov && ov.id !== "ov-crisis") ov.classList.remove("open");
+}));
+
+function scrollBottom() { chatEl.scrollTop = chatEl.scrollHeight; }
+
+function addBubble(role, text) {
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + (role === "user" ? "user" : "ai");
+  const b = document.createElement("div");
+  b.className = "bubble";
+  b.textContent = text;
+  wrap.appendChild(b);
+  messagesEl.appendChild(wrap);
+  scrollBottom();
+  return b;
+}
+
+function addSysNote(text) {
+  const d = document.createElement("div");
+  d.className = "sys-note";
+  d.textContent = text;
+  messagesEl.appendChild(d);
+  scrollBottom();
+}
+
+function addTyping() {
+  const wrap = document.createElement("div");
+  wrap.className = "msg ai";
+  wrap.id = "typing-row";
+  wrap.innerHTML = '<div class="bubble"><span class="typing"><span></span><span></span><span></span></span></div>';
+  messagesEl.appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+/* ================= Persistence ================= */
+function saveHistory() {
+  try { localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(history)); } catch (e) {}
+}
+function loadHistory() {
+  try { history = JSON.parse(localStorage.getItem(LS_KEY_HISTORY)) || []; } catch (e) { history = []; }
+  if (history.length) {
+    welcomeEl.style.display = "none";
+    history.forEach(m => addBubble(m.role, m.content));
+    requestAnimationFrame(scrollBottom);
+  }
+}
+
+/* ================= Deepseek call ================= */
+async function callDeepseek(apiKey, onDelta) {
+  const msgs = [
+    { role: "system", content: SYSTEM_PROMPT },
+    ...history.slice(-MAX_CONTEXT_MSGS)
+  ];
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + apiKey
+    },
+    body: JSON.stringify({ model: MODEL, messages: msgs, stream: true, temperature: 1.0, max_tokens: 600 })
+  });
+  if (!res.ok) {
+    let detail = "";
+    try { detail = (await res.json()).error?.message || ""; } catch (e) {}
+    throw new Error("HTTP " + res.status + (detail ? " — " + detail : ""));
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "", full = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop();
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t.startsWith("data:")) continue;
+      const payload = t.slice(5).trim();
+      if (payload === "[DONE]") continue;
+      try {
+        const delta = JSON.parse(payload).choices?.[0]?.delta?.content;
+        if (delta) { full += delta; onDelta(full); }
+      } catch (e) {}
+    }
+  }
+  return full;
+}
+
+/* ================= Send flow ================= */
+async function sendMessage(text) {
+  text = (text || "").trim();
+  if (!text || sending) return;
+
+  const apiKey = localStorage.getItem(LS_KEY_API);
+  if (!apiKey) {
+    openSheet("#ov-settings");
+    $("#api-key").focus();
+    return;
+  }
+
+  welcomeEl.style.display = "none";
+  sending = true;
+  sendEl.disabled = true;
+  inputEl.value = "";
+  autoGrow();
+
+  addBubble("user", text);
+  history.push({ role: "user", content: text });
+  saveHistory();
+
+  // Crisis layer — client-side, jalan SEBELUM & tanpa bergantung pada AI
+  if (detectCrisis(text)) {
+    openSheet("#ov-crisis");
+  }
+
+  const typingRow = addTyping();
+  try {
+    let bubble = null;
+    const full = await callDeepseek(apiKey, partial => {
+      if (!bubble) { typingRow.remove(); bubble = addBubble("ai", ""); }
+      bubble.textContent = partial;
+      scrollBottom();
+    });
+    if (!bubble) { typingRow.remove(); bubble = addBubble("ai", full || "…"); }
+    history.push({ role: "assistant", content: full });
+    saveHistory();
+  } catch (err) {
+    typingRow.remove();
+    if (String(err.message).includes("401")) {
+      addSysNote("API key tak sah. Check balik dalam Tetapan (ikon gear).");
+      openSheet("#ov-settings");
+    } else if (!navigator.onLine) {
+      addSysNote("Takde connection sekarang. Mesej kau selamat — cuba hantar balik bila online.");
+    } else {
+      addSysNote("Ada masalah sambungan (" + err.message + "). Cuba sekali lagi.");
+    }
+    // buang user msg terakhir dari history supaya boleh retry tanpa duplicate context
+    history.pop();
+    saveHistory();
+    inputEl.value = text;
+    autoGrow();
+  } finally {
+    sending = false;
+    sendEl.disabled = inputEl.value.trim() === "";
+  }
+}
+
+/* ================= Composer ================= */
+function autoGrow() {
+  inputEl.style.height = "auto";
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + "px";
+}
+inputEl.addEventListener("input", () => {
+  sendEl.disabled = inputEl.value.trim() === "" || sending;
+  autoGrow();
+});
+inputEl.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && window.matchMedia("(min-width: 640px)").matches) {
+    e.preventDefault();
+    sendMessage(inputEl.value);
+  }
+});
+sendEl.addEventListener("click", () => sendMessage(inputEl.value));
+document.querySelectorAll(".chip").forEach(c =>
+  c.addEventListener("click", () => sendMessage(c.dataset.starter)));
+
+/* ================= Header actions ================= */
+$("#btn-settings").addEventListener("click", () => {
+  $("#api-key").value = localStorage.getItem(LS_KEY_API) || "";
+  openSheet("#ov-settings");
+});
+$("#btn-new").addEventListener("click", () => {
+  if (!history.length) return;
+  if (confirm("Mulakan sesi baru? Perbualan sekarang akan dipadam.")) {
+    history = [];
+    saveHistory();
+    messagesEl.innerHTML = "";
+    welcomeEl.style.display = "";
+  }
+});
+$("#save-settings").addEventListener("click", () => {
+  const v = $("#api-key").value.trim();
+  if (v) localStorage.setItem(LS_KEY_API, v);
+  else localStorage.removeItem(LS_KEY_API);
+  closeSheet($("#save-settings"));
+});
+$("#clear-data").addEventListener("click", () => {
+  if (confirm("Padam SEMUA data — API key dan semua perbualan?")) {
+    localStorage.removeItem(LS_KEY_API);
+    localStorage.removeItem(LS_KEY_HISTORY);
+    history = [];
+    messagesEl.innerHTML = "";
+    welcomeEl.style.display = "";
+    closeSheet($("#clear-data"));
+  }
+});
+
+/* ================= Teknik: navigation ================= */
+$("#btn-teknik").addEventListener("click", () => openSheet("#ov-teknik"));
+$("#btn-crisis").addEventListener("click", () => openSheet("#ov-crisis"));
+$("#open-breath").addEventListener("click", () => {
+  closeSheet($("#open-breath"));
+  resetBreath();
+  openSheet("#ov-breath");
+});
+$("#open-ground").addEventListener("click", () => {
+  closeSheet($("#open-ground"));
+  resetGround();
+  openSheet("#ov-ground");
+});
+
+/* ================= Box breathing ================= */
+const PHASES = [
+  { label: "Tarik nafas", scale: 1 },
+  { label: "Tahan", scale: 1 },
+  { label: "Hembus perlahan", scale: .62 },
+  { label: "Tahan", scale: .62 }
+];
+let breathTimer = null, breathRunning = false;
+
+function resetBreath() {
+  clearTimeout(breathTimer);
+  breathRunning = false;
+  $("#breath-circle").style.transform = "scale(.62)";
+  $("#breath-phase").textContent = "Sedia?";
+  $("#breath-count").textContent = "";
+  $("#breath-toggle").textContent = "Mula";
+}
+function breathStep(phaseIdx, round) {
+  if (!breathRunning) return;
+  const p = PHASES[phaseIdx % 4];
+  $("#breath-circle").style.transform = "scale(" + p.scale + ")";
+  $("#breath-phase").textContent = p.label;
+  let sec = 4;
+  $("#breath-count").textContent = "Pusingan " + round + " · " + sec;
+  const tick = () => {
+    sec--;
+    if (!breathRunning) return;
+    if (sec > 0) {
+      $("#breath-count").textContent = "Pusingan " + round + " · " + sec;
+      breathTimer = setTimeout(tick, 1000);
+    } else {
+      const next = phaseIdx + 1;
+      breathStep(next, next % 4 === 0 ? round + 1 : round);
+    }
+  };
+  breathTimer = setTimeout(tick, 1000);
+}
+$("#breath-toggle").addEventListener("click", () => {
+  if (breathRunning) { resetBreath(); return; }
+  breathRunning = true;
+  $("#breath-toggle").textContent = "Berhenti";
+  breathStep(0, 1);
+});
+$("#ov-breath").querySelector("[data-close]").addEventListener("click", resetBreath);
+
+/* ================= Grounding 5-4-3-2-1 ================= */
+const GROUND_STEPS = [
+  { n: 5, sense: "benda yang kau NAMPAK", desc: "Tengok sekeliling. Sebut dalam hati 5 benda yang kau boleh nampak sekarang. Perhatikan warna dan bentuk dia." },
+  { n: 4, sense: "benda yang kau boleh SENTUH", desc: "Rasa 4 tekstur — baju kau, permukaan meja, lantai bawah kaki, udara kat kulit." },
+  { n: 3, sense: "bunyi yang kau DENGAR", desc: "Diam sekejap. Kenal pasti 3 bunyi — dekat ke jauh. Kipas? Kereta? Nafas sendiri?" },
+  { n: 2, sense: "bau yang kau boleh HIDU", desc: "2 bau di sekeliling kau. Kalau susah, gerak sikit — bau baju, kopi, udara luar." },
+  { n: 1, sense: "rasa di LIDAH kau", desc: "1 rasa dalam mulut kau sekarang. Atau ambil seteguk air dan perhatikan rasa dia." },
+  { n: "✓", sense: "Kau dah sampai balik", desc: "Fikiran kau dah balik ke sini, ke saat ni. Ambil satu nafas dalam. Bila ready, sambung cerita dengan aku." }
+];
+let groundIdx = 0;
+function renderGround() {
+  const s = GROUND_STEPS[groundIdx];
+  $("#g-num").textContent = s.n;
+  $("#g-sense").textContent = s.sense;
+  $("#g-desc").textContent = s.desc;
+  $("#g-next").textContent = groundIdx >= GROUND_STEPS.length - 1 ? "Selesai" : "Seterusnya";
+  const prog = $("#g-progress");
+  prog.innerHTML = "";
+  for (let i = 0; i < GROUND_STEPS.length; i++) {
+    const dot = document.createElement("span");
+    if (i <= groundIdx) dot.className = "on";
+    prog.appendChild(dot);
+  }
+}
+function resetGround() { groundIdx = 0; renderGround(); }
+$("#g-next").addEventListener("click", () => {
+  if (groundIdx >= GROUND_STEPS.length - 1) { closeSheet($("#g-next")); return; }
+  groundIdx++;
+  renderGround();
+});
+
+/* ================= PWA ================= */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+
+/* ================= Init ================= */
+loadHistory();
+</script>
+</body>
+</html>
