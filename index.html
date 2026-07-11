@@ -309,39 +309,15 @@
   .crisis-line .c-info { font-size: 12.5px; color: var(--text-dim); margin-top: 1px; }
   .crisis-line .c-num { color: var(--accent); font-weight: 700; font-size: 15px; white-space: nowrap; }
 
-  /* ---------- Avatar (pixel therapist) ---------- */
-  .brand-wrap { display: flex; align-items: center; gap: 11px; }
-  .face {
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    transform-origin: 50% 92%;
-  }
-  #face-header {
-    width: 38px; height: 38px; flex-shrink: 0;
-    border-radius: 9px;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
-  }
-  .face-hero {
-    display: block;
-    width: 112px; height: 112px;
-    margin: 0 auto 18px;
-    border-radius: 22px;
-    filter: drop-shadow(0 4px 10px rgba(0,0,0,.35));
-    animation: bob 3.6s ease-in-out infinite;
-  }
-  @keyframes bob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-  }
-  @keyframes nod {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    20% { transform: translateY(1.5px) rotate(3.5deg); }
-    55% { transform: translateY(1px) rotate(-2.5deg); }
-    80% { transform: translateY(1.5px) rotate(1.5deg); }
-  }
-  .face.thinking { animation: nod 1.05s ease-in-out infinite !important; }
-  @media (prefers-reduced-motion: reduce) {
-    .face, .face.thinking { animation: none !important; }
+  /* ---------- Logo ---------- */
+  .brand-wrap { display: flex; align-items: center; gap: 10px; }
+  .logo { display: block; flex-shrink: 0; border-radius: 24%; overflow: hidden; }
+  .logo svg { display: block; width: 100%; height: 100%; }
+  #logo-header { width: 34px; height: 34px; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+  .logo-hero {
+    width: 96px; height: 96px;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.32);
   }
 
   @media (min-width: 640px) {
@@ -355,7 +331,7 @@
 
   <header>
     <div class="brand-wrap">
-      <canvas id="face-header" class="face" width="16" height="16" aria-hidden="true"></canvas>
+      <span class="logo" id="logo-header" aria-hidden="true"></span>
       <div class="brand serif">Sesi<span class="dot">.</span></div>
     </div>
     <div class="header-actions">
@@ -383,7 +359,7 @@
 
   <main id="chat">
     <div id="welcome">
-      <canvas id="face-hero" class="face face-hero" width="16" height="16" aria-hidden="true"></canvas>
+      <span class="logo logo-hero" id="logo-hero" aria-hidden="true"></span>
       <h1 class="serif">Sesi<span class="dot">.</span></h1>
       <p>Ruang untuk meluah. Cerita je apa yang ada dalam kepala — tak perlu susun ayat cantik-cantik.</p>
       <div class="starter-chips">
@@ -834,7 +810,6 @@ async function sendMessage(text) {
   }
 
   const typingRow = addTyping();
-  Avatar.setThinking(true);
   try {
     let bubble = null;
     const full = await callDeepseek(apiKey, partial => {
@@ -861,7 +836,6 @@ async function sendMessage(text) {
     inputEl.value = text;
     autoGrow();
   } finally {
-    Avatar.setThinking(false);
     sending = false;
     sendEl.disabled = inputEl.value.trim() === "";
   }
@@ -1009,72 +983,23 @@ $("#g-next").addEventListener("click", () => {
   renderGround();
 });
 
-/* ================= Avatar: pixel therapist =================
-   Wajah asli (bukan salinan) yang jadi "muka" Sesi. — kelip mata
-   berkala, dan angguk-angguk masa AI sedang balas. Dirender 16x16
-   pada canvas, diskala besar dengan image-rendering: pixelated. */
-const Avatar = (() => {
-  const PAL = {
-    H: "#4a3f37", h: "#6d5f52", g: "#9a8d80", S: "#e8b78f", s: "#cf9a70",
-    E: "#402d22", W: "#fbf3ea", P: "#2a1c14", G: "#20160f", M: "#7c4636"
-  };
-  // Wajah berkaca mata — tenang, kening relaks, senyuman lembut, pelipis beruban.
-  const OPEN = [
-    "....HHHHHHHH....",
-    "...HHHHHHHHHH...",
-    "..HHHHHHHHHHHH..",
-    "..HHHhhHHHHHHH..",
-    "..HHSSSSSSSSHH..",
-    ".HgSEESSSSEESgH.",
-    ".SSSSSSSSSSSSSS.",
-    ".SGGGGGSSGGGGGS.",
-    ".SSGWPGGGGPWGSS.",
-    ".SSGGGGSSGGGGSS.",
-    ".SSSSSSssSSSSSS.",
-    ".SSSSSSsssSSSSS.",
-    ".SSSSSSSSSSSSSS.",
-    ".SSSSMSSSSMSSSS.",
-    ".SSSSSMMMMSSSSS.",
-    "...SSSSSSSSSS..."
-  ];
-  const CLOSED = OPEN.slice();
-  CLOSED[8] = ".SSGssGGGGssGSS.";
-
-  const canvases = [];
-  function draw(cv, closed) {
-    const ctx = cv.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, 16, 16);
-    const g = closed ? CLOSED : OPEN;
-    for (let y = 0; y < 16; y++) {
-      for (let x = 0; x < 16; x++) {
-        const c = g[y][x];
-        if (!PAL[c]) continue;
-        ctx.fillStyle = PAL[c];
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  }
-  function register(cv) { if (cv) { canvases.push(cv); draw(cv, false); } }
-  function setEyes(closed) { canvases.forEach(cv => draw(cv, closed)); }
-  function setThinking(on) { canvases.forEach(cv => cv.classList.toggle("thinking", on)); }
-
-  function scheduleBlink() {
-    setTimeout(() => {
-      setEyes(true);
-      setTimeout(() => {
-        setEyes(false);
-        if (Math.random() < 0.28) { // sekali-sekala double blink
-          setTimeout(() => { setEyes(true); setTimeout(() => setEyes(false), 110); }, 170);
-        }
-        scheduleBlink();
-      }, 130);
-    }, 2600 + Math.random() * 3400);
-  }
-  scheduleBlink();
-  return { register, setThinking };
-})();
-["#face-header", "#face-hero"].forEach(id => Avatar.register(document.querySelector(id)));
+/* ================= Logo ================= */
+// Sama dengan ikon PWA — gelembung sembang hangat + tiga titik.
+function logoSVG(p) {
+  return '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">'
+    + '<defs>'
+    + '<linearGradient id="' + p + 'bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6a684"/><stop offset="1" stop-color="#bb6543"/></linearGradient>'
+    + '<linearGradient id="' + p + 'bub" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7f1e8"/><stop offset="1" stop-color="#e9ddcc"/></linearGradient>'
+    + '<filter id="' + p + 'sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#7a3e26" flood-opacity="0.28"/></filter>'
+    + '</defs>'
+    + '<rect width="512" height="512" fill="url(#' + p + 'bg)"/>'
+    + '<g filter="url(#' + p + 'sh)"><rect x="112" y="150" width="288" height="182" rx="52" fill="url(#' + p + 'bub)"/><path d="M182 320 L150 392 L242 326 Z" fill="#e9ddcc"/></g>'
+    + '<ellipse cx="256" cy="196" rx="118" ry="30" fill="#ffffff" opacity="0.16"/>'
+    + '<circle cx="192" cy="241" r="22" fill="#c56b45"/><circle cx="256" cy="241" r="22" fill="#c56b45"/><circle cx="320" cy="241" r="22" fill="#c56b45"/>'
+    + '</svg>';
+}
+const _lh = document.getElementById("logo-header"); if (_lh) _lh.innerHTML = logoSVG("h");
+const _lv = document.getElementById("logo-hero"); if (_lv) _lv.innerHTML = logoSVG("v");
 
 /* ================= PWA ================= */
 if ("serviceWorker" in navigator) {
