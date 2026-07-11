@@ -1,5 +1,5 @@
 /* Sesi. service worker — cache app shell untuk offline/PWA install */
-const CACHE = "sesi-v3";
+const CACHE = "sesi-v4";
 const SHELL = [
   "./",
   "./index.html",
