@@ -230,6 +230,33 @@
   .hint { font-size: 12.5px; color: var(--text-faint); margin-top: 10px; line-height: 1.5; }
   .hint a { color: var(--accent); }
 
+  /* ---------- Sejarah ---------- */
+  #history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .history-item {
+    display: flex; align-items: stretch; gap: 0;
+    background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 14px;
+    overflow: hidden;
+  }
+  .history-item.active { border-color: var(--accent); }
+  .hi-open {
+    flex: 1; min-width: 0;
+    text-align: left; background: transparent; border: none;
+    color: var(--text); font: inherit; cursor: pointer;
+    padding: 13px 14px;
+  }
+  .hi-title { font-weight: 600; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hi-meta { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+  .hi-del {
+    flex-shrink: 0; width: 46px;
+    background: transparent; border: none; border-left: 1px solid var(--border);
+    color: var(--text-faint); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hi-del:active { color: var(--danger); background: #2a1f1c; }
+  .hi-del svg { width: 17px; height: 17px; }
+  .history-empty { color: var(--text-faint); font-size: 14px; text-align: center; padding: 30px 12px; line-height: 1.6; }
+
   /* ---------- Teknik ---------- */
   .teknik-list { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   .teknik-card {
@@ -332,6 +359,13 @@
       <div class="brand serif">Sesi<span class="dot">.</span></div>
     </div>
     <div class="header-actions">
+      <button class="icon-btn" id="btn-history" title="Sejarah sembang" aria-label="Sejarah sembang">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 3v5h5"/>
+          <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+          <path d="M12 7v5l4 2"/>
+        </svg>
+      </button>
       <button class="icon-btn" id="btn-new" title="Sesi baru" aria-label="Sesi baru">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -403,6 +437,17 @@
     <p class="hint">Key disimpan <strong>dalam browser kau sahaja</strong> (localStorage) — tak dihantar ke mana-mana selain terus ke API Deepseek. Boleh dapatkan key di <a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a>.</p>
     <button class="btn" id="save-settings">Simpan</button>
     <button class="btn danger-ghost" id="clear-data">Padam semua data &amp; perbualan</button>
+  </div>
+</div>
+
+<!-- ============ Sejarah sembang ============ -->
+<div class="overlay" id="ov-history">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Sejarah sembang</h2><div class="sub">Sesi lepas kau, tersimpan dalam telefon ni sahaja.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div id="history-list"></div>
   </div>
 </div>
 
@@ -493,12 +538,16 @@
 
 /* ================= State ================= */
 const LS_KEY_API = "sesi_apikey";
-const LS_KEY_HISTORY = "sesi_history";
+const LS_KEY_SESSIONS = "sesi_sessions";
+const LS_KEY_CURRENT = "sesi_current";
+const LS_KEY_HISTORY_OLD = "sesi_history";   // format lama — untuk migrasi
 const API_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-chat";
 const MAX_CONTEXT_MSGS = 24;
 
-let history = [];      // {role:"user"|"assistant", content:string}
+let sessions = [];     // [{id,title,created,updated,messages:[{role,content}]}]
+let currentId = null;  // id sesi yang sedang dibuka
+let history = [];       // mesej sesi semasa (rujukan kerja)
 let sending = false;
 
 /* ================= System prompt =================
@@ -588,17 +637,131 @@ function addTyping() {
   return wrap;
 }
 
-/* ================= Persistence ================= */
-function saveHistory() {
-  try { localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(history)); } catch (e) {}
+/* ================= Sessions / Sejarah ================= */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function escapeHtml(str) { const d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
+function titleFrom(msgs) {
+  const u = msgs.find(m => m.role === "user");
+  return u ? u.content.trim().replace(/\s+/g, " ").slice(0, 48) : "Sesi";
 }
-function loadHistory() {
-  try { history = JSON.parse(localStorage.getItem(LS_KEY_HISTORY)) || []; } catch (e) { history = []; }
+function formatWhen(ts) {
+  const d = new Date(ts), now = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  const hm = pad(d.getHours()) + ":" + pad(d.getMinutes());
+  const yst = new Date(now); yst.setDate(now.getDate() - 1);
+  const mo = ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun", "Jul", "Ogo", "Sep", "Okt", "Nov", "Dis"];
+  if (d.toDateString() === now.toDateString()) return "Hari ni " + hm;
+  if (d.toDateString() === yst.toDateString()) return "Semalam " + hm;
+  return d.getDate() + " " + mo[d.getMonth()] + " " + hm;
+}
+
+function saveSessions() {
+  try {
+    localStorage.setItem(LS_KEY_SESSIONS, JSON.stringify(sessions));
+    if (currentId) localStorage.setItem(LS_KEY_CURRENT, currentId);
+    else localStorage.removeItem(LS_KEY_CURRENT);
+  } catch (e) {}
+}
+
+// Simpan sesi semasa ke dalam senarai. Sesi kosong tak disimpan.
+function persistCurrent() {
+  if (!history.length) {
+    if (currentId) { sessions = sessions.filter(s => s.id !== currentId); currentId = null; }
+    saveSessions();
+    return;
+  }
+  let s = sessions.find(x => x.id === currentId);
+  if (!s) {
+    s = { id: uid(), title: "", created: Date.now(), updated: Date.now(), messages: [] };
+    sessions.unshift(s);
+    currentId = s.id;
+  }
+  s.messages = history.slice();
+  s.updated = Date.now();
+  s.title = titleFrom(history);
+  saveSessions();
+}
+
+function renderCurrent() {
+  messagesEl.innerHTML = "";
   if (history.length) {
     welcomeEl.style.display = "none";
     history.forEach(m => addBubble(m.role, m.content));
     requestAnimationFrame(scrollBottom);
+  } else {
+    welcomeEl.style.display = "";
   }
+}
+
+function loadSessions() {
+  try { sessions = JSON.parse(localStorage.getItem(LS_KEY_SESSIONS)) || []; } catch (e) { sessions = []; }
+  // migrasi dari format lama (satu perbualan sahaja)
+  if (!sessions.length) {
+    let old = null;
+    try { old = JSON.parse(localStorage.getItem(LS_KEY_HISTORY_OLD)); } catch (e) {}
+    if (old && old.length) {
+      sessions.push({ id: uid(), title: titleFrom(old), created: Date.now(), updated: Date.now(), messages: old });
+      localStorage.removeItem(LS_KEY_HISTORY_OLD);
+      saveSessions();
+    }
+  }
+  currentId = localStorage.getItem(LS_KEY_CURRENT);
+  const cur = sessions.find(s => s.id === currentId);
+  if (cur) history = cur.messages.slice();
+  else { currentId = null; history = []; }
+  renderCurrent();
+}
+
+function startNewSession() {
+  persistCurrent();       // simpan yang sedia ada dulu
+  currentId = null;
+  history = [];
+  saveSessions();         // kemaskini penanda semasa (buang)
+  renderCurrent();
+  inputEl.focus();
+}
+
+function openSession(id) {
+  if (id !== currentId) {
+    persistCurrent();
+    const s = sessions.find(x => x.id === id);
+    if (!s) return;
+    currentId = s.id;
+    history = s.messages.slice();
+    saveSessions();       // kekalkan sesi yang dibuka selepas reload
+    renderCurrent();
+  }
+  $("#ov-history").classList.remove("open");
+}
+
+function deleteSession(id) {
+  sessions = sessions.filter(s => s.id !== id);
+  if (id === currentId) { currentId = null; history = []; renderCurrent(); }
+  saveSessions();
+  renderHistoryList();
+}
+
+const TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+
+function renderHistoryList() {
+  persistCurrent();   // pastikan sesi semasa masuk senarai
+  const list = $("#history-list");
+  if (!sessions.length) {
+    list.innerHTML = '<div class="history-empty">Belum ada sejarah. Mula sembang dulu — setiap sesi akan tersimpan di sini.</div>';
+    return;
+  }
+  const sorted = sessions.slice().sort((a, b) => b.updated - a.updated);
+  list.innerHTML = sorted.map(s => {
+    const count = s.messages.filter(m => m.role === "user").length;
+    const active = s.id === currentId;
+    return '<div class="history-item' + (active ? ' active' : '') + '">'
+      + '<button class="hi-open" data-open="' + s.id + '">'
+      + '<div class="hi-title">' + escapeHtml(s.title || "Sesi") + '</div>'
+      + '<div class="hi-meta">' + count + ' luahan · ' + formatWhen(s.updated) + (active ? ' · sedang dibuka' : '') + '</div>'
+      + '</button>'
+      + '<button class="hi-del" data-del="' + s.id + '" aria-label="Padam sesi">' + TRASH_SVG + '</button>'
+      + '</div>';
+  }).join("");
 }
 
 /* ================= Deepseek call ================= */
@@ -663,7 +826,7 @@ async function sendMessage(text) {
 
   addBubble("user", text);
   history.push({ role: "user", content: text });
-  saveHistory();
+  persistCurrent();
 
   // Crisis layer — client-side, jalan SEBELUM & tanpa bergantung pada AI
   if (detectCrisis(text)) {
@@ -681,7 +844,7 @@ async function sendMessage(text) {
     });
     if (!bubble) { typingRow.remove(); bubble = addBubble("ai", full || "…"); }
     history.push({ role: "assistant", content: full });
-    saveHistory();
+    persistCurrent();
   } catch (err) {
     typingRow.remove();
     if (String(err.message).includes("401")) {
@@ -694,7 +857,7 @@ async function sendMessage(text) {
     }
     // buang user msg terakhir dari history supaya boleh retry tanpa duplicate context
     history.pop();
-    saveHistory();
+    persistCurrent();
     inputEl.value = text;
     autoGrow();
   } finally {
@@ -728,14 +891,13 @@ $("#btn-settings").addEventListener("click", () => {
   $("#api-key").value = localStorage.getItem(LS_KEY_API) || "";
   openSheet("#ov-settings");
 });
-$("#btn-new").addEventListener("click", () => {
-  if (!history.length) return;
-  if (confirm("Mulakan sesi baru? Perbualan sekarang akan dipadam.")) {
-    history = [];
-    saveHistory();
-    messagesEl.innerHTML = "";
-    welcomeEl.style.display = "";
-  }
+$("#btn-new").addEventListener("click", startNewSession);
+$("#btn-history").addEventListener("click", () => { renderHistoryList(); openSheet("#ov-history"); });
+$("#history-list").addEventListener("click", e => {
+  const del = e.target.closest("[data-del]");
+  if (del) { if (confirm("Padam sesi ni? Tak boleh dikembalikan.")) deleteSession(del.dataset.del); return; }
+  const open = e.target.closest("[data-open]");
+  if (open) openSession(open.dataset.open);
 });
 $("#save-settings").addEventListener("click", () => {
   const v = $("#api-key").value.trim();
@@ -746,10 +908,13 @@ $("#save-settings").addEventListener("click", () => {
 $("#clear-data").addEventListener("click", () => {
   if (confirm("Padam SEMUA data — API key dan semua perbualan?")) {
     localStorage.removeItem(LS_KEY_API);
-    localStorage.removeItem(LS_KEY_HISTORY);
+    localStorage.removeItem(LS_KEY_SESSIONS);
+    localStorage.removeItem(LS_KEY_CURRENT);
+    localStorage.removeItem(LS_KEY_HISTORY_OLD);
+    sessions = [];
+    currentId = null;
     history = [];
-    messagesEl.innerHTML = "";
-    welcomeEl.style.display = "";
+    renderCurrent();
     closeSheet($("#clear-data"));
   }
 });
@@ -919,7 +1084,7 @@ if ("serviceWorker" in navigator) {
 }
 
 /* ================= Init ================= */
-loadHistory();
+loadSessions();
 </script>
 </body>
 </html>
