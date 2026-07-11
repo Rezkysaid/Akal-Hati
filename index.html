@@ -819,30 +819,30 @@ $("#g-next").addEventListener("click", () => {
    pada canvas, diskala besar dengan image-rendering: pixelated. */
 const Avatar = (() => {
   const PAL = {
-    H: "#4a3f37", h: "#6d5f52", S: "#e8b78f", s: "#cf9a70",
-    E: "#402d22", W: "#fbf3ea", P: "#2a1c14", M: "#7c4636", m: "#ad6a52"
+    H: "#4a3f37", h: "#6d5f52", g: "#9a8d80", S: "#e8b78f", s: "#cf9a70",
+    E: "#402d22", W: "#fbf3ea", P: "#2a1c14", G: "#20160f", M: "#7c4636"
   };
+  // Wajah berkaca mata — tenang, kening relaks, senyuman lembut, pelipis beruban.
   const OPEN = [
     "....HHHHHHHH....",
     "...HHHHHHHHHH...",
     "..HHHHHHHHHHHH..",
-    "..HHhHHHHHHhHH..",
+    "..HHHhhHHHHHHH..",
     "..HHSSSSSSSSHH..",
-    ".HHSSSSSSSSSSHH.",
-    ".HSSEESSSSEESSH.",
+    ".HgSEESSSSEESgH.",
     ".SSSSSSSSSSSSSS.",
-    ".SSSWPSSSSPWSSS.",
-    ".SSSWWSSSSWWSSS.",
+    ".SGGGGGSSGGGGGS.",
+    ".SSGWPGGGGPWGSS.",
+    ".SSGGGGSSGGGGSS.",
     ".SSSSSSssSSSSSS.",
     ".SSSSSSsssSSSSS.",
     ".SSSSSSSSSSSSSS.",
-    ".SSSSMMmmMMSSSS.",
-    "...SSSSSSSSSS...",
-    "....SSSSSSSS...."
+    ".SSSSMSSSSMSSSS.",
+    ".SSSSSMMMMSSSSS.",
+    "...SSSSSSSSSS..."
   ];
   const CLOSED = OPEN.slice();
-  CLOSED[8] = ".SSSSSSSSSSSSSS.";
-  CLOSED[9] = ".SSSssSSSSssSSS.";
+  CLOSED[8] = ".SSGssGGGGssGSS.";
 
   const canvases = [];
   function draw(cv, closed) {
