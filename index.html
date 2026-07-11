@@ -277,6 +277,41 @@
   .crisis-line .c-info { font-size: 12.5px; color: var(--text-dim); margin-top: 1px; }
   .crisis-line .c-num { color: var(--accent); font-weight: 700; font-size: 15px; white-space: nowrap; }
 
+  /* ---------- Avatar (pixel therapist) ---------- */
+  .brand-wrap { display: flex; align-items: center; gap: 11px; }
+  .face {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    transform-origin: 50% 92%;
+  }
+  #face-header {
+    width: 38px; height: 38px; flex-shrink: 0;
+    border-radius: 9px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
+  }
+  .face-hero {
+    display: block;
+    width: 112px; height: 112px;
+    margin: 0 auto 18px;
+    border-radius: 22px;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.35));
+    animation: bob 3.6s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes nod {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    20% { transform: translateY(1.5px) rotate(3.5deg); }
+    55% { transform: translateY(1px) rotate(-2.5deg); }
+    80% { transform: translateY(1.5px) rotate(1.5deg); }
+  }
+  .face.thinking { animation: nod 1.05s ease-in-out infinite !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .face, .face.thinking { animation: none !important; }
+  }
+
   @media (min-width: 640px) {
     .overlay { align-items: center; padding: 20px; }
     .sheet { border-radius: 24px; border-bottom: 1px solid var(--border); }
@@ -287,7 +322,10 @@
 <div id="app">
 
   <header>
-    <div class="brand serif">Sesi<span class="dot">.</span></div>
+    <div class="brand-wrap">
+      <canvas id="face-header" class="face" width="16" height="16" aria-hidden="true"></canvas>
+      <div class="brand serif">Sesi<span class="dot">.</span></div>
+    </div>
     <div class="header-actions">
       <button class="icon-btn" id="btn-new" title="Sesi baru" aria-label="Sesi baru">&#10553;</button>
       <button class="icon-btn" id="btn-settings" title="Tetapan" aria-label="Tetapan">&#9881;</button>
@@ -296,6 +334,7 @@
 
   <main id="chat">
     <div id="welcome">
+      <canvas id="face-hero" class="face face-hero" width="16" height="16" aria-hidden="true"></canvas>
       <h1 class="serif">Sesi<span class="dot">.</span></h1>
       <p>Ruang untuk meluah. Cerita je apa yang ada dalam kepala — tak perlu susun ayat cantik-cantik.</p>
       <div class="starter-chips">
@@ -601,6 +640,7 @@ async function sendMessage(text) {
   }
 
   const typingRow = addTyping();
+  Avatar.setThinking(true);
   try {
     let bubble = null;
     const full = await callDeepseek(apiKey, partial => {
@@ -627,6 +667,7 @@ async function sendMessage(text) {
     inputEl.value = text;
     autoGrow();
   } finally {
+    Avatar.setThinking(false);
     sending = false;
     sendEl.disabled = inputEl.value.trim() === "";
   }
@@ -771,6 +812,73 @@ $("#g-next").addEventListener("click", () => {
   groundIdx++;
   renderGround();
 });
+
+/* ================= Avatar: pixel therapist =================
+   Wajah asli (bukan salinan) yang jadi "muka" Sesi. — kelip mata
+   berkala, dan angguk-angguk masa AI sedang balas. Dirender 16x16
+   pada canvas, diskala besar dengan image-rendering: pixelated. */
+const Avatar = (() => {
+  const PAL = {
+    H: "#4a3f37", h: "#6d5f52", S: "#e8b78f", s: "#cf9a70",
+    E: "#402d22", W: "#fbf3ea", P: "#2a1c14", M: "#7c4636", m: "#ad6a52"
+  };
+  const OPEN = [
+    "....HHHHHHHH....",
+    "...HHHHHHHHHH...",
+    "..HHHHHHHHHHHH..",
+    "..HHhHHHHHHhHH..",
+    "..HHSSSSSSSSHH..",
+    ".HHSSSSSSSSSSHH.",
+    ".HSSEESSSSEESSH.",
+    ".SSSSSSSSSSSSSS.",
+    ".SSSWPSSSSPWSSS.",
+    ".SSSWWSSSSWWSSS.",
+    ".SSSSSSssSSSSSS.",
+    ".SSSSSSsssSSSSS.",
+    ".SSSSSSSSSSSSSS.",
+    ".SSSSMMmmMMSSSS.",
+    "...SSSSSSSSSS...",
+    "....SSSSSSSS...."
+  ];
+  const CLOSED = OPEN.slice();
+  CLOSED[8] = ".SSSSSSSSSSSSSS.";
+  CLOSED[9] = ".SSSssSSSSssSSS.";
+
+  const canvases = [];
+  function draw(cv, closed) {
+    const ctx = cv.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, 16, 16);
+    const g = closed ? CLOSED : OPEN;
+    for (let y = 0; y < 16; y++) {
+      for (let x = 0; x < 16; x++) {
+        const c = g[y][x];
+        if (!PAL[c]) continue;
+        ctx.fillStyle = PAL[c];
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+  function register(cv) { if (cv) { canvases.push(cv); draw(cv, false); } }
+  function setEyes(closed) { canvases.forEach(cv => draw(cv, closed)); }
+  function setThinking(on) { canvases.forEach(cv => cv.classList.toggle("thinking", on)); }
+
+  function scheduleBlink() {
+    setTimeout(() => {
+      setEyes(true);
+      setTimeout(() => {
+        setEyes(false);
+        if (Math.random() < 0.28) { // sekali-sekala double blink
+          setTimeout(() => { setEyes(true); setTimeout(() => setEyes(false), 110); }, 170);
+        }
+        scheduleBlink();
+      }, 130);
+    }, 2600 + Math.random() * 3400);
+  }
+  scheduleBlink();
+  return { register, setThinking };
+})();
+["#face-header", "#face-hero"].forEach(id => Avatar.register(document.querySelector(id)));
 
 /* ================= PWA ================= */
 if ("serviceWorker" in navigator) {
