@@ -313,7 +313,6 @@
   .brand-wrap { display: flex; align-items: center; gap: 10px; }
   .logo { display: block; flex-shrink: 0; border-radius: 24%; overflow: hidden; }
   .logo svg { display: block; width: 100%; height: 100%; }
-  #logo-header { width: 34px; height: 34px; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
   .logo-hero {
     width: 96px; height: 96px;
     margin: 0 auto 20px;
@@ -331,7 +330,6 @@
 
   <header>
     <div class="brand-wrap">
-      <span class="logo" id="logo-header" aria-hidden="true"></span>
       <div class="brand serif">Sesi<span class="dot">.</span></div>
     </div>
     <div class="header-actions">
@@ -998,7 +996,6 @@ function logoSVG(p) {
     + '<circle cx="192" cy="241" r="22" fill="#c56b45"/><circle cx="256" cy="241" r="22" fill="#c56b45"/><circle cx="320" cy="241" r="22" fill="#c56b45"/>'
     + '</svg>';
 }
-const _lh = document.getElementById("logo-header"); if (_lh) _lh.innerHTML = logoSVG("h");
 const _lv = document.getElementById("logo-hero"); if (_lv) _lv.innerHTML = logoSVG("v");
 
 /* ================= PWA ================= */
