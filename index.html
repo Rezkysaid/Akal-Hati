@@ -339,7 +339,8 @@
     padding: 15px 16px; cursor: pointer; text-align: left;
     color: var(--text); font: inherit;
   }
-  .teknik-card .t-emoji { font-size: 26px; }
+  .teknik-card .t-emoji { flex-shrink: 0; width: 40px; height: 40px; border-radius: 11px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; }
+  .teknik-card .t-emoji svg { width: 22px; height: 22px; }
   .teknik-card .t-name { font-weight: 600; font-size: 15.5px; }
   .teknik-card .t-desc { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
 
@@ -523,11 +524,11 @@
     </div>
     <div class="teknik-list">
       <button class="teknik-card" id="open-roleplay">
-        <span class="t-emoji">&#127916;</span>
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.4Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg></span>
         <span><span class="t-name">Latihan roleplay</span><br><span class="t-desc">Latih situasi sebenar (interview, tegur orang, cakap “tak”) — aku main watak orang seberang, lepas tu bagi maklum balas.</span></span>
       </button>
       <button class="teknik-card" id="open-ladder">
-        <span class="t-emoji">&#129517;</span>
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4v-4h4v-4h4V8h4V4"/></svg></span>
         <span><span class="t-name">Tangga cabaran</span><br><span class="t-desc">Pecah satu ketakutan jadi anak tangga kecil. Naik satu-satu ikut kadar sendiri (graded exposure).</span></span>
       </button>
     </div>
@@ -584,11 +585,11 @@
     </div>
     <div class="teknik-list">
       <button class="teknik-card" id="open-breath">
-        <span class="t-emoji">&#128330;</span>
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3.5"/></svg></span>
         <span><span class="t-name">Box Breathing</span><br><span class="t-desc">4 saat tarik &middot; 4 tahan &middot; 4 hembus &middot; 4 tahan. Untuk tenangkan sistem saraf.</span></span>
       </button>
       <button class="teknik-card" id="open-ground">
-        <span class="t-emoji">&#129704;</span>
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg></span>
         <span><span class="t-name">Grounding 5-4-3-2-1</span><br><span class="t-desc">Tarik fokus balik ke masa sekarang guna 5 deria.</span></span>
       </button>
     </div>
