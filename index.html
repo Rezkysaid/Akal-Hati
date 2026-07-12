@@ -330,6 +330,44 @@
   }
   .lg-addstep:active { border-color: var(--accent); color: var(--text); }
 
+  /* ---------- Cabaran mikro ---------- */
+  .micro-card {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 18px; padding: 30px 22px; margin-top: 4px;
+    min-height: 148px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+  }
+  .micro-level {
+    font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+    padding: 4px 11px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+  }
+  .micro-text { font-size: 18px; line-height: 1.5; color: var(--text); }
+  #micro-done svg { width: 17px; height: 17px; vertical-align: -3px; margin-right: 7px; }
+  #micro-done.flash { background: var(--safe); }
+  .micro-count { text-align: center; color: var(--text-faint); font-size: 13px; margin-top: 14px; line-height: 1.5; }
+
+  /* ---------- Reda fikiran (stepper) ---------- */
+  .pm-q { font-size: 16.5px; font-weight: 600; margin: 4px 0 14px; line-height: 1.5; }
+  textarea.pm-input {
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; font: inherit; font-size: 15px; outline: none; resize: none; min-height: 92px;
+  }
+  textarea.pm-input:focus { border-color: var(--accent); }
+  .pm-nav { display: flex; gap: 10px; margin-top: 16px; }
+  .pm-nav .btn { flex: 1; margin-top: 0; }
+  .pm-progress { display: flex; gap: 6px; justify-content: center; margin-top: 18px; }
+  .pm-progress span { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+  .pm-progress span.on { background: var(--accent); }
+  .pm-reframe {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 17px; margin-bottom: 10px;
+    font-size: 14.5px; line-height: 1.65; color: var(--text-dim);
+  }
+  .pm-reframe + .pm-reframe { margin-top: -2px; }
+  .pm-reframe b { color: var(--text); font-weight: 600; }
+  .pm-quote { color: var(--text); font-style: italic; }
+
   /* ---------- Teknik ---------- */
   .teknik-list { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   .teknik-card {
@@ -531,6 +569,14 @@
         <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4v-4h4v-4h4V8h4V4"/></svg></span>
         <span><span class="t-name">Tangga cabaran</span><br><span class="t-desc">Pecah satu ketakutan jadi anak tangga kecil. Naik satu-satu ikut kadar sendiri (graded exposure).</span></span>
       </button>
+      <button class="teknik-card" id="open-micro">
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span>
+        <span><span class="t-name">Cabaran mikro</span><br><span class="t-desc">Langkah kecil harian untuk bina keyakinan beransur. Tanpa streak — setiap cubaan dikira.</span></span>
+      </button>
+      <button class="teknik-card" id="open-postmortem">
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2.1-9.4L1 10"/></svg></span>
+        <span><span class="t-name">Reda fikiran</span><br><span class="t-desc">Asyik ulang balik event tadi dalam kepala? Pisahkan fakta dari tafsiran, redakan post-mortem.</span></span>
+      </button>
     </div>
 
     <div class="sosial-tips">
@@ -573,6 +619,37 @@
     </div>
     <button class="btn" id="add-goal">+ Matlamat baru</button>
     <div id="ladder-list"></div>
+  </div>
+</div>
+
+<!-- ============ Cabaran mikro ============ -->
+<div class="overlay" id="ov-micro">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Cabaran mikro</h2><div class="sub">Satu langkah kecil bila kau sedia. Tiada streak — setiap cubaan dikira, itu je yang penting.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div class="micro-card">
+      <span class="micro-level" id="micro-level"></span>
+      <div class="micro-text" id="micro-text"></div>
+    </div>
+    <button class="btn" id="micro-done">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      Dah cuba
+    </button>
+    <button class="btn ghost" id="micro-next">Cabaran lain</button>
+    <div class="micro-count" id="micro-count"></div>
+  </div>
+</div>
+
+<!-- ============ Reda fikiran (post-mortem) ============ -->
+<div class="overlay" id="ov-postmortem">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Reda fikiran</h2><div class="sub">Lepas event sosial, minda suka main balik &amp; besarkan silap. Jom pisahkan fakta dari tafsiran.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div id="pm-body"></div>
   </div>
 </div>
 
@@ -1345,7 +1422,125 @@ $("#ladder-list").addEventListener("click", e => {
   }
 });
 
+/* ================= Cabaran mikro ================= */
+const LS_KEY_MICRO = "sesi_micro";
+const MICRO = [
+  { t: "Buat kontak mata & senyum dengan cashier, ucap terima kasih.", lvl: "Senang" },
+  { t: "Hantar voice note, bukan text, kat satu orang hari ni.", lvl: "Senang" },
+  { t: "Minta bantuan kecil dari seseorang (tanya arah, pinjam pen).", lvl: "Senang" },
+  { t: "Puji diri sendiri lepas satu interaksi — apa yang kau buat OK.", lvl: "Senang" },
+  { t: "Bagi seorang satu pujian yang ikhlas hari ni.", lvl: "Sederhana" },
+  { t: "Tanya orang asing pukul berapa atau arah ke suatu tempat.", lvl: "Sederhana" },
+  { t: "Mulakan small talk pendek dengan colleague (komen cuaca/makanan).", lvl: "Sederhana" },
+  { t: "Bagi pendapat kau dalam satu perbualan, walaupun ringkas.", lvl: "Sederhana" },
+  { t: "Duduk/makan di tempat awam sorang, 5 minit tanpa telefon.", lvl: "Sederhana" },
+  { t: "Tanya satu soalan dalam meeting atau kelas.", lvl: "Cabar" },
+  { t: "Tegur orang yang kau selalu nampak tapi tak pernah sapa.", lvl: "Cabar" },
+  { t: "Kongsi satu benda peribadi kecil dengan kawan (bukan surface talk).", lvl: "Cabar" },
+  { t: "Biar ada 3 saat senyap dalam sembang tanpa cuba isi.", lvl: "Cabar" }
+];
+let micro = { count: 0, done: [] };
+let microIdx = 0;
+function loadMicro() { try { micro = JSON.parse(localStorage.getItem(LS_KEY_MICRO)) || { count: 0, done: [] }; } catch (e) { micro = { count: 0, done: [] }; } }
+function saveMicro() { try { localStorage.setItem(LS_KEY_MICRO, JSON.stringify(micro)); } catch (e) {} }
+function microRandom() { let i; do { i = Math.floor(Math.random() * MICRO.length); } while (MICRO.length > 1 && i === microIdx); return i; }
+function microShow(idx) {
+  microIdx = idx;
+  $("#micro-text").textContent = MICRO[idx].t;
+  $("#micro-level").textContent = MICRO[idx].lvl;
+}
+function microUpdateCount() {
+  $("#micro-count").textContent = micro.count > 0
+    ? "Kau dah cuba " + micro.count + " cabaran setakat ni. Setiap satu penting."
+    : "Pilih satu, cuba bila kau sedia. Rasa cemas tu normal — buat je pun dah menang.";
+}
+$("#open-micro").addEventListener("click", () => {
+  closeSheet($("#open-micro"));
+  microShow(microRandom());
+  microUpdateCount();
+  openSheet("#ov-micro");
+});
+$("#micro-next").addEventListener("click", () => microShow(microRandom()));
+$("#micro-done").addEventListener("click", () => {
+  micro.count++;
+  micro.done.unshift({ t: MICRO[microIdx].t, ts: Date.now() });
+  micro.done = micro.done.slice(0, 40);
+  saveMicro();
+  const btn = $("#micro-done");
+  btn.classList.add("flash");
+  microUpdateCount();
+  setTimeout(() => { btn.classList.remove("flash"); microShow(microRandom()); }, 850);
+});
+
+/* ================= Reda fikiran (post-mortem) ================= */
+const PM_STEPS = [
+  { key: "event", q: "Event apa yang kau asyik terfikir?", ph: "Contoh: meeting tadi, aku tersasul masa present" },
+  { key: "thought", q: "Apa fikiran yang berulang-ulang — yang paling kritikal tu?", ph: "Contoh: semua orang mesti fikir aku tak prepared" },
+  { key: "facts", q: "Sekarang fakta je: apa yang BETUL-BETUL berlaku? Orang cakap/buat apa? Buang tafsiran.", ph: "Contoh: aku tersasul sekali, sambung balik. Ada yang angguk, takde siapa komen apa-apa" },
+  { key: "friend", q: "Kalau kawan baik kau alami benda sama, apa kau cakap kat dia?", ph: "Tulis macam kau pujuk kawan…" },
+  { key: "win", q: "Satu benda yang OK, atau kau berjaya buat walaupun cemas?", ph: "Contoh: aku tetap habiskan present walaupun gugup" }
+];
+let pmAnswers = {};
+let pmIdx = 0;
+
+$("#open-postmortem").addEventListener("click", () => {
+  closeSheet($("#open-postmortem"));
+  pmAnswers = {}; pmIdx = 0;
+  pmRender();
+  openSheet("#ov-postmortem");
+});
+
+function pmCaptureInput() {
+  const ta = $("#pm-input");
+  if (ta) pmAnswers[PM_STEPS[pmIdx].key] = ta.value.trim();
+}
+
+function pmRender() {
+  const body = $("#pm-body");
+  if (pmIdx < PM_STEPS.length) {
+    const step = PM_STEPS[pmIdx];
+    const dots = PM_STEPS.map((_, i) => '<span class="' + (i <= pmIdx ? 'on' : '') + '"></span>').join("");
+    body.innerHTML =
+      '<div class="pm-q">' + escapeHtml(step.q) + '</div>'
+      + '<textarea id="pm-input" class="pm-input" rows="3" placeholder="' + escapeHtml(step.ph) + '"></textarea>'
+      + '<div class="pm-nav">'
+      + (pmIdx > 0 ? '<button class="btn ghost" id="pm-back">Balik</button>' : '')
+      + '<button class="btn" id="pm-next">' + (pmIdx === PM_STEPS.length - 1 ? 'Siap' : 'Seterusnya') + '</button>'
+      + '</div>'
+      + '<div class="pm-progress">' + dots + '</div>';
+    const ta = $("#pm-input");
+    ta.value = pmAnswers[step.key] || "";
+    ta.focus();
+    if ($("#pm-back")) $("#pm-back").addEventListener("click", () => { pmCaptureInput(); pmIdx--; pmRender(); });
+    $("#pm-next").addEventListener("click", () => { pmCaptureInput(); pmIdx++; pmRender(); });
+  } else {
+    // Skrin ringkasan
+    const friend = pmAnswers.friend ? '<div class="pm-reframe">Kau cakap kat kawan: <span class="pm-quote">“' + escapeHtml(pmAnswers.friend) + '”</span><br>Layan diri kau dengan belas yang sama.</div>' : '';
+    const win = pmAnswers.win ? '<div class="pm-reframe"><b>Jangan lupa:</b> ' + escapeHtml(pmAnswers.win) + '</div>' : '';
+    body.innerHTML =
+      '<div class="pm-reframe">Post-mortem tu <b>bukan fakta</b> — ia cara cemas main balik &amp; besarkan kejadian. Apa yang kau tulis sebagai <b>fakta</b> tadi lebih dekat dengan apa yang betul-betul jadi.</div>'
+      + friend + win
+      + '<div class="pm-nav">'
+      + '<button class="btn ghost" id="pm-close">Selesai</button>'
+      + '<button class="btn" id="pm-discuss">Bincang dengan Sesi.</button>'
+      + '</div>';
+    $("#pm-close").addEventListener("click", () => $("#ov-postmortem").classList.remove("open"));
+    $("#pm-discuss").addEventListener("click", () => {
+      const parts = [];
+      if (pmAnswers.event) parts.push("Aku asyik terfikir pasal " + pmAnswers.event + ".");
+      if (pmAnswers.thought) parts.push('Fikiran yang menghantui aku: "' + pmAnswers.thought + '".');
+      if (pmAnswers.facts) parts.push("Tapi fakta sebenarnya: " + pmAnswers.facts + ".");
+      const msg = parts.join(" ") || "Aku asyik ulang balik satu event sosial dalam kepala.";
+      $("#ov-postmortem").classList.remove("open");
+      $("#ov-sosial").classList.remove("open");
+      startNewSession();
+      sendMessage(msg);
+    });
+  }
+}
+
 /* ================= Init ================= */
+loadMicro();
 loadLadders();
 loadSessions();
 </script>
