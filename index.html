@@ -120,13 +120,43 @@
     margin: 18px 24px;
   }
 
+  /* ---------- Scene: bilik therapy ---------- */
+  #scene {
+    height: 150px; flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+    background: #1e1712;
+  }
+  #scene svg { width: 100%; height: 100%; display: block; }
+  #therapist {
+    transform-box: fill-box; transform-origin: 50% 100%;
+    animation: th-breath 5s ease-in-out infinite;
+  }
+  #therapist.think { animation: th-nod 1.15s ease-in-out infinite; }
+  @keyframes th-breath { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2.5px); } }
+  @keyframes th-nod {
+    0%, 100% { transform: rotate(0) translateY(0); }
+    30% { transform: rotate(2.2deg) translateY(1px); }
+    70% { transform: rotate(-1.6deg) translateY(0.5px); }
+  }
+  #th-eyes { transform-box: fill-box; transform-origin: 50% 50%; transition: transform .08s; }
+  #th-eyes.blink { transform: scaleY(0.15); }
+  .sc-rain line { stroke-dasharray: 7 13; animation: sc-rain 1.5s linear infinite; }
+  @keyframes sc-rain { to { stroke-dashoffset: -40; } }
+  .sc-lampglow { animation: sc-glow 6s ease-in-out infinite; }
+  @keyframes sc-glow { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
+  .sc-steam { opacity: .3; transform-box: fill-box; animation: sc-steam 3.4s ease-in-out infinite; }
+  .sc-steam2 { animation-delay: 1.6s; }
+  @keyframes sc-steam { 0%, 100% { opacity: .12; transform: translateY(0); } 50% { opacity: .4; transform: translateY(-3px); } }
+  @media (max-height: 600px) { #scene { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    #therapist, #th-eyes, .sc-rain line, .sc-lampglow, .sc-steam { animation: none !important; }
+  }
+
   /* ---------- Welcome ---------- */
-  #welcome { padding: 8vh 10px 20px; text-align: center; }
-  #welcome h1 { font-size: 34px; font-weight: 600; margin-bottom: 10px; }
-  #welcome h1 .dot { color: var(--accent); }
-  #welcome p { color: var(--text-dim); font-size: 15.5px; max-width: 420px; margin: 0 auto 8px; }
+  #welcome { padding: 18px 10px 20px; text-align: center; }
+  #welcome .w-hint { color: var(--text-dim); font-size: 14px; max-width: 420px; margin: 0 auto; }
   #welcome .disclaimer { font-size: 12.5px; color: var(--text-faint); margin-top: 18px; }
-  .starter-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 26px; }
+  .starter-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
   .chip {
     background: var(--surface); color: var(--text-dim);
     border: 1px solid var(--border); border-radius: 999px;
@@ -421,15 +451,12 @@
   .crisis-line .c-info { font-size: 12.5px; color: var(--text-dim); margin-top: 1px; }
   .crisis-line .c-num { color: var(--accent); font-weight: 700; font-size: 15px; white-space: nowrap; }
 
-  /* ---------- Logo ---------- */
+  /* ---------- Brand & ambient ---------- */
   .brand-wrap { display: flex; align-items: center; gap: 10px; }
-  .logo { display: block; flex-shrink: 0; border-radius: 24%; overflow: hidden; }
-  .logo svg { display: block; width: 100%; height: 100%; }
-  .logo-hero {
-    width: 96px; height: 96px;
-    margin: 0 auto 20px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.32);
-  }
+  .icon-btn.active { color: var(--accent); background: var(--accent-soft); }
+  .amb-card.active { border-color: var(--accent); }
+  .amb-card.active .t-name { color: var(--accent); }
+  input[type="range"] { width: 100%; accent-color: var(--accent); margin-top: 4px; }
 
   @media (min-width: 640px) {
     .overlay { align-items: center; padding: 20px; }
@@ -445,6 +472,13 @@
       <div class="brand serif">Sesi<span class="dot">.</span></div>
     </div>
     <div class="header-actions">
+      <button class="icon-btn" id="btn-ambient" title="Bunyi bilik" aria-label="Bunyi bilik">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+          <path d="M18.8 5.2a9.5 9.5 0 0 1 0 13.6"/>
+        </svg>
+      </button>
       <button class="icon-btn" id="btn-history" title="Sejarah sembang" aria-label="Sejarah sembang">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M3 3v5h5"/>
@@ -467,11 +501,100 @@
     </div>
   </header>
 
+  <div id="scene" aria-hidden="true">
+    <svg viewBox="0 0 720 240" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="sc-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c2219"/><stop offset="1" stop-color="#1e1712"/></linearGradient>
+        <linearGradient id="sc-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26303f"/><stop offset="1" stop-color="#161d29"/></linearGradient>
+        <linearGradient id="sc-desk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#57402d"/><stop offset="1" stop-color="#3a2b20"/></linearGradient>
+        <radialGradient id="sc-glow"><stop offset="0" stop-color="#ffcf9a" stop-opacity="0.4"/><stop offset="1" stop-color="#ffcf9a" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="720" height="240" fill="url(#sc-wall)"/>
+      <rect y="204" width="720" height="36" fill="#191310"/>
+      <rect y="200" width="720" height="5" fill="#151009"/>
+
+      <!-- tingkap malam + hujan -->
+      <g>
+        <rect x="492" y="26" width="150" height="122" rx="10" fill="#3b2d22"/>
+        <rect x="500" y="34" width="134" height="106" rx="6" fill="url(#sc-sky)"/>
+        <circle cx="604" cy="64" r="24" fill="#dfe6ee" opacity="0.08"/>
+        <circle cx="604" cy="64" r="12" fill="#e6e1d3" opacity="0.85"/>
+        <g class="sc-rain" stroke="#9fb4cc" stroke-width="1.6" stroke-linecap="round" opacity="0.4">
+          <line x1="516" y1="44" x2="510" y2="132"/>
+          <line x1="544" y1="40" x2="538" y2="134"/>
+          <line x1="572" y1="46" x2="566" y2="130"/>
+          <line x1="620" y1="42" x2="614" y2="134"/>
+        </g>
+        <rect x="563" y="34" width="6" height="106" fill="#3b2d22"/>
+        <rect x="500" y="82" width="134" height="6" fill="#3b2d22"/>
+      </g>
+
+      <!-- bingkai gambar -->
+      <rect x="70" y="44" width="66" height="50" rx="6" fill="#3b2d22"/>
+      <rect x="77" y="51" width="52" height="36" rx="3" fill="#584330"/>
+      <circle cx="103" cy="69" r="10" fill="#c98a5f" opacity="0.55"/>
+
+      <!-- lampu -->
+      <g>
+        <ellipse cx="160" cy="107" rx="58" ry="46" fill="url(#sc-glow)" class="sc-lampglow"/>
+        <rect x="157" y="92" width="6" height="104" rx="3" fill="#3b2d22"/>
+        <ellipse cx="160" cy="198" rx="22" ry="6" fill="#3b2d22"/>
+        <path d="M132 92 L188 92 L178 58 L142 58 Z" fill="#cf8f60"/>
+      </g>
+
+      <!-- pokok -->
+      <g>
+        <path d="M446 198 l32 0 5 -26 -42 0 Z" fill="#6d4a35"/>
+        <g fill="#5d6b4f">
+          <ellipse cx="450" cy="150" rx="8" ry="21" transform="rotate(-24 450 150)"/>
+          <ellipse cx="463" cy="144" rx="8" ry="25"/>
+          <ellipse cx="476" cy="150" rx="8" ry="21" transform="rotate(24 476 150)"/>
+        </g>
+      </g>
+
+      <!-- therapist -->
+      <g id="therapist">
+        <path d="M300 176 Q305 128 360 128 Q415 128 420 176 Z" fill="#6b4f3f"/>
+        <rect x="306" y="142" width="17" height="36" rx="8.5" fill="#6b4f3f" transform="rotate(22 314 160)"/>
+        <rect x="397" y="142" width="17" height="36" rx="8.5" fill="#6b4f3f" transform="rotate(-22 406 160)"/>
+        <circle cx="314" cy="178" r="7" fill="#e9bb92"/>
+        <circle cx="406" cy="178" r="7" fill="#e9bb92"/>
+        <circle cx="332" cy="99" r="5" fill="#e9bb92"/>
+        <circle cx="388" cy="99" r="5" fill="#e9bb92"/>
+        <circle cx="360" cy="96" r="27" fill="#e9bb92"/>
+        <path d="M333 96 a27 27 0 0 1 54 0 Z" fill="#4a3f37"/>
+        <g stroke="#241a12" stroke-width="2.4" fill="rgba(255,255,255,0.05)">
+          <rect x="337" y="95" width="18" height="14" rx="6"/>
+          <rect x="365" y="95" width="18" height="14" rx="6"/>
+          <line x1="355" y1="101" x2="365" y2="101"/>
+        </g>
+        <g id="th-eyes" fill="#241a12">
+          <circle cx="346" cy="102" r="2.7"/>
+          <circle cx="374" cy="102" r="2.7"/>
+        </g>
+        <path d="M351 117 Q360 122 369 117" stroke="#a3684a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <!-- meja -->
+      <rect x="180" y="172" width="360" height="16" rx="8" fill="#5a4331"/>
+      <path d="M192 188 L528 188 L520 226 L200 226 Z" fill="url(#sc-desk)"/>
+
+      <!-- cawan -->
+      <g>
+        <rect x="256" y="156" width="18" height="17" rx="3.5" fill="#8aa78f"/>
+        <path d="M274 160 q8 3 0 9" stroke="#8aa78f" stroke-width="3" fill="none"/>
+        <path class="sc-steam" d="M264 150 q-4 -7 1 -12" stroke="#efe7df" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <rect x="452" y="156" width="18" height="17" rx="3.5" fill="#c96f4a"/>
+        <path d="M470 160 q8 3 0 9" stroke="#c96f4a" stroke-width="3" fill="none"/>
+        <path class="sc-steam sc-steam2" d="M460 150 q4 -7 -1 -12" stroke="#efe7df" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
   <main id="chat">
+    <div id="messages"></div>
     <div id="welcome">
-      <span class="logo logo-hero" id="logo-hero" aria-hidden="true"></span>
-      <h1 class="serif">Sesi<span class="dot">.</span></h1>
-      <p>Ruang untuk meluah. Cerita je apa yang ada dalam kepala — tak perlu susun ayat cantik-cantik.</p>
+      <p class="w-hint">Bilik ni ruang kau. Taip je bila sedia — atau mula dengan salah satu:</p>
       <div class="starter-chips">
         <button class="chip" data-starter="Hari ni rasa berat sangat, tapi tak tahu kenapa.">Rasa berat, tak tahu kenapa</button>
         <button class="chip" data-starter="Aku banyak overthink kebelakangan ni.">Banyak overthink</button>
@@ -480,7 +603,6 @@
       </div>
       <p class="disclaimer">Sesi. bukan pengganti professional. Kalau kau dalam krisis, tekan butang <svg class="inline-ico" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true" style="color:var(--danger)"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> Bantuan segera untuk talian bantuan sebenar.</p>
     </div>
-    <div id="messages"></div>
   </main>
 
   <div id="composer-wrap">
@@ -524,6 +646,36 @@
         </svg>
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ============ Bunyi bilik ============ -->
+<div class="overlay" id="ov-ambient">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Bunyi bilik</h2><div class="sub">Ambient untuk temankan sesi. Dijana dalam telefon — tak perlu internet.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div class="teknik-list">
+      <button class="teknik-card amb-card" data-amb="hujan">
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 16.6A5 5 0 0 0 18 7h-1.3A7 7 0 1 0 5 15.3"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="16" y1="19" x2="16" y2="21"/></svg></span>
+        <span><span class="t-name">Hujan</span><br><span class="t-desc">Rintik lembut kat luar tingkap.</span></span>
+      </button>
+      <button class="teknik-card amb-card" data-amb="ombak">
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6c2.2 0 2.8 2 5 2s2.8-2 5-2 2.8 2 5 2 2.8-2 5-2"/><path d="M2 12c2.2 0 2.8 2 5 2s2.8-2 5-2 2.8 2 5 2 2.8-2 5-2"/><path d="M2 18c2.2 0 2.8 2 5 2s2.8-2 5-2 2.8 2 5 2 2.8-2 5-2"/></svg></span>
+        <span><span class="t-name">Ombak</span><br><span class="t-desc">Alunan pantai perlahan-lahan.</span></span>
+      </button>
+      <button class="teknik-card amb-card" data-amb="malam">
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg></span>
+        <span><span class="t-name">Malam sunyi</span><br><span class="t-desc">Deruan rendah yang tenang.</span></span>
+      </button>
+      <button class="teknik-card amb-card" data-amb="off">
+        <span class="t-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="17" y1="9" x2="23" y2="15"/><line x1="23" y1="9" x2="17" y2="15"/></svg></span>
+        <span><span class="t-name">Senyap</span><br><span class="t-desc">Tutup bunyi bilik.</span></span>
+      </button>
+    </div>
+    <label for="amb-vol">Kekuatan bunyi</label>
+    <input type="range" id="amb-vol" min="0" max="100" value="55">
   </div>
 </div>
 
@@ -873,9 +1025,10 @@ function saveSessions() {
   } catch (e) {}
 }
 
-// Simpan sesi semasa ke dalam senarai. Sesi kosong tak disimpan.
+// Simpan sesi semasa ke dalam senarai. Sesi tanpa luahan user
+// (kosong / hanya sapaan pembuka therapist) tak disimpan.
 function persistCurrent() {
-  if (!history.length) {
+  if (!history.some(m => m.role === "user")) {
     if (currentId) { sessions = sessions.filter(s => s.id !== currentId); currentId = null; }
     saveSessions();
     return;
@@ -954,6 +1107,7 @@ function startNewSession() {
   resetMeta();
   saveSessions();         // kemaskini penanda semasa (buang)
   renderCurrent();
+  maybeOpener();          // therapist sapa dulu
   inputEl.focus();
 }
 
@@ -973,7 +1127,7 @@ function openSession(id) {
 
 function deleteSession(id) {
   sessions = sessions.filter(s => s.id !== id);
-  if (id === currentId) { currentId = null; history = []; resetMeta(); renderCurrent(); }
+  if (id === currentId) { currentId = null; history = []; resetMeta(); renderCurrent(); maybeOpener(); }
   saveSessions();
   renderHistoryList();
 }
@@ -1104,6 +1258,7 @@ async function sendMessage(text) {
   }
 
   const typingRow = addTyping();
+  Scene.think(true);
   try {
     let bubble = null;
     const full = await callDeepseek(apiKey, partial => {
@@ -1130,6 +1285,7 @@ async function sendMessage(text) {
     inputEl.value = text;
     autoGrow();
   } finally {
+    Scene.think(false);
     sending = false;
     sendEl.disabled = inputEl.value.trim() === "";
   }
@@ -1183,6 +1339,7 @@ $("#clear-data").addEventListener("click", () => {
     currentId = null;
     history = [];
     renderCurrent();
+    maybeOpener();
     closeSheet($("#clear-data"));
   }
 });
@@ -1277,22 +1434,155 @@ $("#g-next").addEventListener("click", () => {
   renderGround();
 });
 
-/* ================= Logo ================= */
-// Sama dengan ikon PWA — gelembung sembang hangat + tiga titik.
-function logoSVG(p) {
-  return '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">'
-    + '<defs>'
-    + '<linearGradient id="' + p + 'bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6a684"/><stop offset="1" stop-color="#bb6543"/></linearGradient>'
-    + '<linearGradient id="' + p + 'bub" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7f1e8"/><stop offset="1" stop-color="#e9ddcc"/></linearGradient>'
-    + '<filter id="' + p + 'sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#7a3e26" flood-opacity="0.28"/></filter>'
-    + '</defs>'
-    + '<rect width="512" height="512" fill="url(#' + p + 'bg)"/>'
-    + '<g filter="url(#' + p + 'sh)"><rect x="112" y="150" width="288" height="182" rx="52" fill="url(#' + p + 'bub)"/><path d="M182 320 L150 392 L242 326 Z" fill="#e9ddcc"/></g>'
-    + '<ellipse cx="256" cy="196" rx="118" ry="30" fill="#ffffff" opacity="0.16"/>'
-    + '<circle cx="192" cy="241" r="22" fill="#c56b45"/><circle cx="256" cy="241" r="22" fill="#c56b45"/><circle cx="320" cy="241" r="22" fill="#c56b45"/>'
-    + '</svg>';
+/* ================= Scene: bilik therapy ================= */
+const Scene = (() => {
+  const eyes = document.getElementById("th-eyes");
+  const th = document.getElementById("therapist");
+  function blinkLoop() {
+    setTimeout(() => {
+      if (eyes) {
+        eyes.classList.add("blink");
+        setTimeout(() => {
+          eyes.classList.remove("blink");
+          if (Math.random() < 0.25) {
+            setTimeout(() => { eyes.classList.add("blink"); setTimeout(() => eyes.classList.remove("blink"), 100); }, 160);
+          }
+          blinkLoop();
+        }, 120);
+      }
+    }, 2800 + Math.random() * 3200);
+  }
+  blinkLoop();
+  return { think(on) { if (th) th.classList.toggle("think", on); } };
+})();
+
+/* ================= Therapist buka sesi ================= */
+function therapistOpener() {
+  const h = new Date().getHours();
+  const salam = h < 5 ? "Lewat malam ni." : h < 12 ? "Selamat pagi." : h < 15 ? "Hai." : h < 19 ? "Selamat petang." : "Malam dah.";
+  const kembali = sessions.length
+    ? ["Selamat datang balik ke bilik ni.", "Baguslah kau singgah lagi.", "Duduk la — macam biasa, ruang ni kau punya."]
+    : ["Selamat datang. Aku Sesi — anggap je ruang ni bilik kita berdua.", "Masuk la, duduk. Apa yang kau cakap kekal dalam bilik ni."];
+  const tanya = [
+    "Macam mana keadaan kau hari ni — yang sebenar punya, bukan jawapan “okay je” tu?",
+    "Apa yang paling banyak duduk dalam kepala kau kebelakangan ni?",
+    "Sebelum apa-apa — badan kau macam mana sekarang? Penat? Tegang? Kadang badan bagitahu dulu sebelum kita sedar.",
+    "Hari ni layan kau macam mana setakat ni?",
+    "Kau nak mula dengan benda yang baru jadi, atau benda yang dah lama bersarang?",
+    "Tak payah susun ayat cantik-cantik. Mula je dari mana-mana — apa yang ada sekarang?"
+  ];
+  const r = a => a[Math.floor(Math.random() * a.length)];
+  return salam + " " + r(kembali) + " " + r(tanya);
 }
-const _lv = document.getElementById("logo-hero"); if (_lv) _lv.innerHTML = logoSVG("v");
+
+let openerTimer = null;
+function maybeOpener() {
+  if (currentMode !== "chat" || history.length || sending) return;
+  clearTimeout(openerTimer);
+  const t = addTyping();
+  Scene.think(true);
+  openerTimer = setTimeout(() => {
+    if (!sending) Scene.think(false);
+    t.remove();
+    if (history.length || currentMode !== "chat") return;
+    const msg = therapistOpener();
+    addBubble("ai", msg);
+    history.push({ role: "assistant", content: msg });
+  }, 1100 + Math.random() * 600);
+}
+
+/* ================= Bunyi bilik (ambient, WebAudio) ================= */
+const Ambient = (() => {
+  const LS = "sesi_ambient";
+  let ctx = null, master = null, nodes = [], mode = "off";
+  let pref = { mode: "hujan", vol: 55 };
+  try { pref = { ...pref, ...(JSON.parse(localStorage.getItem(LS)) || {}) }; } catch (e) {}
+
+  function ensure() {
+    if (ctx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = (pref.vol / 100) * 0.5;
+    master.connect(ctx.destination);
+  }
+  function noiseBuffer(kind) {
+    const len = ctx.sampleRate * 3;
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    let b = 0;
+    for (let i = 0; i < len; i++) {
+      const w = Math.random() * 2 - 1;
+      if (kind === "brown") { b = (b + 0.02 * w) / 1.02; d[i] = b * 3.5; }
+      else d[i] = w;
+    }
+    return buf;
+  }
+  function layer(kind, filters, gainVal, lfo) {
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuffer(kind);
+    src.loop = true;
+    let node = src;
+    filters.forEach(f => {
+      const bi = ctx.createBiquadFilter();
+      bi.type = f[0]; bi.frequency.value = f[1];
+      node.connect(bi); node = bi;
+    });
+    const g = ctx.createGain();
+    g.gain.value = gainVal;
+    node.connect(g); g.connect(master);
+    if (lfo) {
+      const o = ctx.createOscillator();
+      o.frequency.value = lfo[0];
+      const og = ctx.createGain();
+      og.gain.value = lfo[1];
+      o.connect(og); og.connect(g.gain);
+      o.start(); nodes.push(o);
+    }
+    src.start(); nodes.push(src);
+  }
+  function stopNodes() { nodes.forEach(n => { try { n.stop(); } catch (e) {} }); nodes = []; }
+  function stop() { stopNodes(); mode = "off"; update(); }
+  function start(m) {
+    ensure();
+    ctx.resume();
+    stopNodes();
+    mode = m;
+    if (m === "hujan") {
+      layer("white", [["highpass", 400], ["lowpass", 6000]], 0.42, [0.3, 0.05]);
+      layer("brown", [["lowpass", 400]], 0.22, null);
+    } else if (m === "ombak") {
+      layer("brown", [["lowpass", 550]], 0.3, [0.07, 0.2]);
+      layer("white", [["highpass", 800], ["lowpass", 2500]], 0.045, [0.11, 0.03]);
+    } else if (m === "malam") {
+      layer("brown", [["lowpass", 280]], 0.42, null);
+    }
+    pref.mode = m; save(); update();
+  }
+  function setVol(v) {
+    pref.vol = v; save();
+    if (master) master.gain.value = (v / 100) * 0.5;
+  }
+  function save() { try { localStorage.setItem(LS, JSON.stringify(pref)); } catch (e) {} }
+  function update() {
+    document.querySelectorAll(".amb-card").forEach(c =>
+      c.classList.toggle("active", c.dataset.amb === (mode === "off" ? "off" : mode)));
+    $("#btn-ambient").classList.toggle("active", mode !== "off");
+  }
+  return { start, stop, setVol, update, get pref() { return pref; }, get mode() { return mode; } };
+})();
+
+$("#btn-ambient").addEventListener("click", () => {
+  $("#amb-vol").value = Ambient.pref.vol;
+  Ambient.update();
+  openSheet("#ov-ambient");
+});
+document.querySelectorAll(".amb-card").forEach(c => c.addEventListener("click", () => {
+  const m = c.dataset.amb;
+  if (m === "off") Ambient.stop();
+  else Ambient.start(m);
+}));
+$("#amb-vol").addEventListener("input", e => Ambient.setVol(+e.target.value));
 
 /* ================= PWA ================= */
 if ("serviceWorker" in navigator) {
@@ -1543,6 +1833,7 @@ function pmRender() {
 loadMicro();
 loadLadders();
 loadSessions();
+maybeOpener();   // therapist sapa bila kau masuk bilik
 </script>
 </body>
 </html>
