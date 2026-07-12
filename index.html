@@ -257,6 +257,79 @@
   .hi-del svg { width: 17px; height: 17px; }
   .history-empty { color: var(--text-faint); font-size: 14px; text-align: center; padding: 30px 12px; line-height: 1.6; }
 
+  /* ---------- Sosial ---------- */
+  #roleplay-bar {
+    display: none; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--accent-soft); border: 1px solid var(--accent);
+    border-radius: 14px; padding: 8px 8px 8px 13px; margin-bottom: 9px;
+  }
+  .rb-info { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .rb-tag { flex-shrink: 0; background: var(--accent); color: #241812; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; letter-spacing: .3px; }
+  #roleplay-scenario { font-size: 13px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #end-roleplay {
+    flex-shrink: 0; background: var(--accent); color: #241812;
+    border: none; border-radius: 10px; padding: 8px 12px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  #end-roleplay:active { opacity: .85; }
+
+  .sosial-tips { margin-top: 22px; }
+  .st-head { font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 10px; }
+  .tip-card {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+    font-size: 13.5px; color: var(--text-dim); line-height: 1.55;
+  }
+  .tip-card b { color: var(--text); font-weight: 600; }
+
+  #roleplay-input {
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 14px; font: inherit; font-size: 15px; outline: none; resize: none;
+  }
+  #roleplay-input:focus { border-color: var(--accent); }
+  .rp-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  .rp-chip {
+    background: var(--surface-2); color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 7px 13px; font-size: 13px; cursor: pointer;
+  }
+  .rp-chip:active { border-color: var(--accent); color: var(--text); }
+
+  #ladder-list { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .ladder-goal { background: var(--surface-2); border: 1px solid var(--border); border-radius: 16px; padding: 14px; }
+  .lg-head { display: flex; align-items: center; gap: 10px; }
+  .lg-title { flex: 1; font-weight: 600; font-size: 15px; min-width: 0; }
+  .lg-meta { font-size: 12px; color: var(--text-faint); white-space: nowrap; }
+  .lg-del { background: transparent; border: none; color: var(--text-faint); cursor: pointer; padding: 4px; }
+  .lg-del svg { width: 16px; height: 16px; }
+  .lg-del:active { color: var(--danger); }
+  .ladder-steps { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .lg-empty { font-size: 13px; color: var(--text-faint); padding: 4px 2px; }
+  .ladder-step { display: flex; align-items: center; gap: 9px; }
+  .ls-check {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 7px;
+    border: 1.5px solid var(--border); background: var(--bg);
+    color: var(--accent); font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ladder-step.done .ls-check { background: var(--accent); border-color: var(--accent); color: #241812; }
+  .ls-text { flex: 1; font-size: 14px; min-width: 0; }
+  .ladder-step.done .ls-text { text-decoration: line-through; color: var(--text-faint); }
+  .ls-rasa {
+    flex-shrink: 0; min-width: 26px; height: 24px; padding: 0 7px;
+    background: var(--accent-soft); color: var(--accent);
+    border: none; border-radius: 7px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  }
+  .ls-del { flex-shrink: 0; background: transparent; border: none; color: var(--text-faint); font-size: 14px; cursor: pointer; padding: 4px 6px; }
+  .ls-del:active { color: var(--danger); }
+  .lg-addstep {
+    margin-top: 11px; width: 100%; background: transparent;
+    border: 1px dashed var(--border); border-radius: 10px;
+    color: var(--text-dim); padding: 9px; font-size: 13px; cursor: pointer;
+  }
+  .lg-addstep:active { border-color: var(--accent); color: var(--text); }
+
   /* ---------- Teknik ---------- */
   .teknik-list { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   .teknik-card {
@@ -372,7 +445,23 @@
   </main>
 
   <div id="composer-wrap">
+    <div id="roleplay-bar">
+      <div class="rb-info">
+        <span class="rb-tag">Roleplay</span>
+        <span id="roleplay-scenario"></span>
+      </div>
+      <button id="end-roleplay">Tamat &amp; minta feedback</button>
+    </div>
     <div class="quick-row">
+      <button class="quick-btn" id="btn-sosial">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Sosial
+      </button>
       <button class="quick-btn" id="btn-teknik">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
@@ -422,6 +511,67 @@
       <button class="close-x" data-close>&#10005;</button>
     </div>
     <div id="history-list"></div>
+  </div>
+</div>
+
+<!-- ============ Sosial hub ============ -->
+<div class="overlay" id="ov-sosial">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Cabaran sosial</h2><div class="sub">Latih hadapi cemas dengan orang, kurangkan kekok, bina keyakinan — langkah demi langkah.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <div class="teknik-list">
+      <button class="teknik-card" id="open-roleplay">
+        <span class="t-emoji">&#127916;</span>
+        <span><span class="t-name">Latihan roleplay</span><br><span class="t-desc">Latih situasi sebenar (interview, tegur orang, cakap “tak”) — aku main watak orang seberang, lepas tu bagi maklum balas.</span></span>
+      </button>
+      <button class="teknik-card" id="open-ladder">
+        <span class="t-emoji">&#129517;</span>
+        <span><span class="t-name">Tangga cabaran</span><br><span class="t-desc">Pecah satu ketakutan jadi anak tangga kecil. Naik satu-satu ikut kadar sendiri (graded exposure).</span></span>
+      </button>
+    </div>
+
+    <div class="sosial-tips">
+      <div class="st-head">Ingat ni — terbukti secara sains:</div>
+      <div class="tip-card"><b>Orang tak perasan sebanyak yang kau sangka.</b> Kajian tunjuk kegugupan kita jauh kurang nampak pada orang lain berbanding rasa dalaman kita (illusion of transparency).</div>
+      <div class="tip-card"><b>“Safety behaviour” kekalkan cemas.</b> Latih ayat dalam kepala, elak kontak mata, pegang barang kuat-kuat — semua ni ironinya buat cemas kekal. Cuba lepaskan satu, tengok apa jadi.</div>
+      <div class="tip-card"><b>Alih fokus ke luar.</b> Bila cemas kita pantau diri sendiri. Sengaja fokus pada orang & sekeliling (dengar betul-betul) — anxiety turun.</div>
+      <div class="tip-card"><b>Cemas tak semestinya berhenti dulu baru boleh buat.</b> Terima rasa tu, buat juga benda yang penting. Setiap kali kau hadap, otak belajar “ni selamat” — itu yang kecilkan cemas.</div>
+    </div>
+    <p class="hint">Kalau cemas sosial kau berat, berterusan, dan ganggu hidup harian — ni boleh dibantu dengan lebih baik oleh professional. Sesi. alat sokongan, bukan pengganti rawatan.</p>
+  </div>
+</div>
+
+<!-- ============ Roleplay setup ============ -->
+<div class="overlay" id="ov-roleplay-setup">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Latihan roleplay</h2><div class="sub">Situasi apa kau nak latih? Aku akan main watak orang seberang.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <textarea id="roleplay-input" rows="2" placeholder="Contoh: Interview kerja esok, aku selalu blank bila ditanya soalan susah."></textarea>
+    <div class="rp-chips">
+      <button class="rp-chip" data-rp="Interview kerja — aku gugup bila kena jawab soalan susah.">Interview kerja</button>
+      <button class="rp-chip" data-rp="Tegur dan berkenalan dengan orang baru di majlis.">Tegur orang baru</button>
+      <button class="rp-chip" data-rp="Cakap “tak” kat kawan yang selalu minta tolong, tanpa rasa bersalah.">Cakap “tak”</button>
+      <button class="rp-chip" data-rp="Present depan team, aku takut suara menggigil.">Present depan orang</button>
+      <button class="rp-chip" data-rp="Small talk masa lunch dengan colleague, aku selalu kehabisan topik.">Small talk</button>
+    </div>
+    <button class="btn" id="start-roleplay">Mula latihan</button>
+    <p class="hint">Nanti kau balas macam dalam situasi betul. Bila dah cukup, tekan “Tamat &amp; minta feedback” — aku keluar watak dan bagi maklum balas membina.</p>
+  </div>
+</div>
+
+<!-- ============ Tangga cabaran ============ -->
+<div class="overlay" id="ov-ladder">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2>Tangga cabaran</h2><div class="sub">Naik ikut kadar sendiri. Ulang setiap langkah sampai “berat rasa” turun sebelum naik seterusnya.</div></div>
+      <button class="close-x" data-close>&#10005;</button>
+    </div>
+    <button class="btn" id="add-goal">+ Matlamat baru</button>
+    <div id="ladder-list"></div>
   </div>
 </div>
 
@@ -519,10 +669,17 @@ const API_URL = "https://api.deepseek.com/chat/completions";
 const MODEL = "deepseek-chat";
 const MAX_CONTEXT_MSGS = 24;
 
-let sessions = [];     // [{id,title,created,updated,messages:[{role,content}]}]
+let sessions = [];     // [{id,title,created,updated,mode,scenario,phase,messages:[{role,content}]}]
 let currentId = null;  // id sesi yang sedang dibuka
 let history = [];       // mesej sesi semasa (rujukan kerja)
 let sending = false;
+
+// Mod sesi semasa: "chat" biasa, atau "roleplay" (latihan sosial)
+let currentMode = "chat";
+let currentScenario = "";
+let currentPhase = "play";   // "play" (dalam watak) | "debrief" (maklum balas)
+const LS_KEY_LADDERS = "sesi_ladders";
+let ladders = [];       // [{id,goal,steps:[{id,text,rasa,done}]}]
 
 /* ================= System prompt =================
    NOTA: dalam production sebenar, prompt & API key patut duduk
@@ -571,6 +728,7 @@ const messagesEl = $("#messages");
 const welcomeEl = $("#welcome");
 const inputEl = $("#input");
 const sendEl = $("#send");
+const DEFAULT_PLACEHOLDER = inputEl.getAttribute("placeholder");
 
 function openSheet(id) { $(id).classList.add("open"); }
 function closeSheet(el) { el.closest(".overlay").classList.remove("open"); }
@@ -652,7 +810,12 @@ function persistCurrent() {
   }
   s.messages = history.slice();
   s.updated = Date.now();
-  s.title = titleFrom(history);
+  s.mode = currentMode;
+  s.scenario = currentScenario;
+  s.phase = currentPhase;
+  s.title = currentMode === "roleplay"
+    ? "Roleplay · " + (currentScenario || "sosial").slice(0, 40)
+    : titleFrom(history);
   saveSessions();
 }
 
@@ -662,9 +825,22 @@ function renderCurrent() {
     welcomeEl.style.display = "none";
     history.forEach(m => addBubble(m.role, m.content));
     requestAnimationFrame(scrollBottom);
+  } else if (currentMode === "roleplay") {
+    welcomeEl.style.display = "none";
+    addSysNote("Latihan roleplay — situasi: " + currentScenario + ". Aku akan main watak orang seberang. Mula bila kau dah sedia. Bila dah cukup, tekan “Tamat & minta feedback”.");
   } else {
     welcomeEl.style.display = "";
   }
+  updateRoleplayBar();
+}
+
+function updateRoleplayBar() {
+  const bar = $("#roleplay-bar");
+  if (!bar) return;
+  const on = currentMode === "roleplay" && currentPhase === "play";
+  bar.style.display = on ? "flex" : "none";
+  if (on) $("#roleplay-scenario").textContent = currentScenario;
+  inputEl.setAttribute("placeholder", on ? "Balas dalam situasi ni…" : DEFAULT_PLACEHOLDER);
 }
 
 function loadSessions() {
@@ -681,15 +857,23 @@ function loadSessions() {
   }
   currentId = localStorage.getItem(LS_KEY_CURRENT);
   const cur = sessions.find(s => s.id === currentId);
-  if (cur) history = cur.messages.slice();
-  else { currentId = null; history = []; }
+  if (cur) { history = cur.messages.slice(); loadMeta(cur); }
+  else { currentId = null; history = []; resetMeta(); }
   renderCurrent();
+}
+
+function resetMeta() { currentMode = "chat"; currentScenario = ""; currentPhase = "play"; }
+function loadMeta(s) {
+  currentMode = s.mode || "chat";
+  currentScenario = s.scenario || "";
+  currentPhase = s.phase || "play";
 }
 
 function startNewSession() {
   persistCurrent();       // simpan yang sedia ada dulu
   currentId = null;
   history = [];
+  resetMeta();
   saveSessions();         // kemaskini penanda semasa (buang)
   renderCurrent();
   inputEl.focus();
@@ -702,6 +886,7 @@ function openSession(id) {
     if (!s) return;
     currentId = s.id;
     history = s.messages.slice();
+    loadMeta(s);
     saveSessions();       // kekalkan sesi yang dibuka selepas reload
     renderCurrent();
   }
@@ -710,7 +895,7 @@ function openSession(id) {
 
 function deleteSession(id) {
   sessions = sessions.filter(s => s.id !== id);
-  if (id === currentId) { currentId = null; history = []; renderCurrent(); }
+  if (id === currentId) { currentId = null; history = []; resetMeta(); renderCurrent(); }
   saveSessions();
   renderHistoryList();
 }
@@ -738,10 +923,43 @@ function renderHistoryList() {
   }).join("");
 }
 
+/* ================= Prompt roleplay sosial ================= */
+function roleplayPrompt(scenario) {
+  return `Kau sedang bantu user LATIH satu situasi sosial yang buat dia cemas, melalui roleplay.
+
+SITUASI YANG DILATIH: "${scenario}"
+
+PERANAN KAU: main watak "orang seberang" dalam situasi ni secara realistik — mesra tapi tak terlalu mudah, supaya latihan bermakna. Balas ringkas dan natural macam manusia betul dalam situasi tu (2-4 ayat), dalam bahasa user (rojak Melayu kalau dia rojak).
+
+PERATURAN:
+- Kekal dalam watak. JANGAN bagi nasihat therapy atau analisis masa dalam watak.
+- Jangan buat user rasa gagal. Kalau dia gugup, sekat, atau ayat tergantung — teruskan situasi dengan realistik tapi baik hati, macam orang yang sabar.
+- Jangan terlalu sempurna atau terlalu kejam — realistik je.
+- Sesekali bagi peluang natural untuk dia praktik (soalan, jeda).
+
+KESELAMATAN (paling penting): kalau user tunjuk tanda distress SEBENAR (bukan sebahagian roleplay) — nak cederakan diri, putus asa teruk, krisis — KELUAR watak SERTA-MERTA, tanya khabar dia dengan ikhlas, dan galak dia hubungi bantuan sebenar (Talian HEAL 15555, 24 jam). Keselamatan mengatasi latihan.`;
+}
+function debriefPrompt(scenario) {
+  return `Kau therapist Sesi. User baru habis latih roleplay situasi sosial: "${scenario}". Perbualan di atas tu adalah roleplay tadi (kau main watak orang seberang; sekarang kau dah balik jadi therapist Sesi.).
+
+Bagi maklum balas yang HANGAT, SPESIFIK dan MEMBINA berdasarkan apa yang user betul-betul cakap tadi:
+- Mula dengan 1-2 benda yang dia buat elok — sebut spesifik, bukan pujian kosong.
+- Cadang 1-2 benda kecil yang boleh dia cuba lain kali, berdasarkan prinsip terbukti: lepaskan "safety behaviour" (contoh berhenti latih ayat dalam kepala, biar sikit senyap), alih fokus ke luar (dengar betul-betul orang tu, bukan pantau diri sendiri), dan terima rasa cemas sambil tetap teruskan.
+- Ingatkan lembut: orang lain jarang perasan kegugupan kita sebanyak yang kita sangka.
+
+Ringkas (3-5 ayat), rojak natural, jangan lecture. Lepas ni sambung borak biasa kalau dia nak teruskan.`;
+}
+function systemPromptFor() {
+  if (currentMode === "roleplay") {
+    return currentPhase === "debrief" ? debriefPrompt(currentScenario) : roleplayPrompt(currentScenario);
+  }
+  return SYSTEM_PROMPT;
+}
+
 /* ================= Deepseek call ================= */
 async function callDeepseek(apiKey, onDelta) {
   const msgs = [
-    { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: systemPromptFor() },
     ...history.slice(-MAX_CONTEXT_MSGS)
   ];
   const res = await fetch(API_URL, {
@@ -1005,7 +1223,129 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+/* ================= Sosial: hub + roleplay ================= */
+$("#btn-sosial").addEventListener("click", () => openSheet("#ov-sosial"));
+$("#open-roleplay").addEventListener("click", () => { closeSheet($("#open-roleplay")); $("#roleplay-input").value = ""; openSheet("#ov-roleplay-setup"); });
+$("#open-ladder").addEventListener("click", () => { closeSheet($("#open-ladder")); renderLadders(); openSheet("#ov-ladder"); });
+
+document.querySelectorAll(".rp-chip").forEach(c =>
+  c.addEventListener("click", () => { $("#roleplay-input").value = c.dataset.rp; }));
+
+$("#start-roleplay").addEventListener("click", () => {
+  const scenario = $("#roleplay-input").value.trim();
+  if (!scenario) { $("#roleplay-input").focus(); return; }
+  if (!localStorage.getItem(LS_KEY_API)) { closeSheet($("#start-roleplay")); openSheet("#ov-settings"); $("#api-key").focus(); return; }
+  startRoleplay(scenario);
+});
+
+function startRoleplay(scenario) {
+  persistCurrent();
+  currentId = null;
+  history = [];
+  currentMode = "roleplay";
+  currentScenario = scenario;
+  currentPhase = "play";
+  saveSessions();
+  $("#ov-roleplay-setup").classList.remove("open");
+  $("#ov-sosial").classList.remove("open");
+  renderCurrent();
+  inputEl.focus();
+}
+
+$("#end-roleplay").addEventListener("click", () => {
+  if (sending) return;
+  if (!history.some(m => m.role === "user")) {
+    addSysNote("Belum ada apa-apa nak di-review — cuba mula latihan dulu.");
+    return;
+  }
+  currentPhase = "debrief";
+  persistCurrent();
+  updateRoleplayBar();
+  addSysNote("— Roleplay tamat. Ni maklum balas jujur dari aku —");
+  sendMessage("Ok, roleplay tamat. Macam mana aku buat tadi? Bagi feedback jujur.");
+});
+
+/* ================= Tangga Cabaran ================= */
+function loadLadders() { try { ladders = JSON.parse(localStorage.getItem(LS_KEY_LADDERS)) || []; } catch (e) { ladders = []; } }
+function saveLadders() { try { localStorage.setItem(LS_KEY_LADDERS, JSON.stringify(ladders)); } catch (e) {} }
+
+function renderLadders() {
+  const wrap = $("#ladder-list");
+  if (!ladders.length) {
+    wrap.innerHTML = '<div class="history-empty">Belum ada matlamat. Tekan “+ Matlamat baru” untuk mula.<br><br>Pecahkan satu ketakutan sosial jadi anak tangga kecil — dari paling senang ke paling menggerunkan. Buat satu-satu, ulang sampai rasa turun.</div>';
+    return;
+  }
+  wrap.innerHTML = ladders.map(g => {
+    const steps = g.steps.slice().sort((a, b) => a.rasa - b.rasa);
+    const done = g.steps.filter(s => s.done).length;
+    const rows = steps.map(s =>
+      '<div class="ladder-step' + (s.done ? ' done' : '') + '">'
+      + '<button class="ls-check" data-toggle="' + g.id + ':' + s.id + '" aria-label="Tanda selesai">' + (s.done ? '&#10003;' : '') + '</button>'
+      + '<span class="ls-text">' + escapeHtml(s.text) + '</span>'
+      + '<button class="ls-rasa" data-rasa="' + g.id + ':' + s.id + '" title="Berat rasa 0-10">' + s.rasa + '</button>'
+      + '<button class="ls-del" data-delstep="' + g.id + ':' + s.id + '" aria-label="Padam langkah">&#10005;</button>'
+      + '</div>').join("");
+    return '<div class="ladder-goal">'
+      + '<div class="lg-head"><div class="lg-title">' + escapeHtml(g.goal) + '</div>'
+      + '<div class="lg-meta">' + done + '/' + g.steps.length + ' selesai</div>'
+      + '<button class="lg-del" data-delgoal="' + g.id + '" aria-label="Padam matlamat">' + TRASH_SVG + '</button></div>'
+      + '<div class="ladder-steps">' + (rows || '<div class="lg-empty">Belum ada langkah.</div>') + '</div>'
+      + '<button class="lg-addstep" data-addstep="' + g.id + '">+ Tambah langkah</button>'
+      + '</div>';
+  }).join("");
+}
+
+$("#add-goal").addEventListener("click", () => {
+  const goal = (prompt("Matlamat sosial kau apa? Contoh: “Boleh present depan team tanpa panik”") || "").trim();
+  if (!goal) return;
+  ladders.unshift({ id: uid(), goal: goal.slice(0, 80), steps: [] });
+  saveLadders(); renderLadders();
+});
+
+$("#ladder-list").addEventListener("click", e => {
+  const addstep = e.target.closest("[data-addstep]");
+  if (addstep) {
+    const g = ladders.find(x => x.id === addstep.dataset.addstep);
+    const text = (prompt("Anak tangga (langkah kecil). Contoh: “Tanya soalan satu masa meeting”") || "").trim();
+    if (!text) return;
+    let r = (prompt("Berat rasa buat ni sekarang, 0 (senang) - 10 (paling gerun)?", "5") || "").trim();
+    r = Math.max(0, Math.min(10, parseInt(r, 10) || 0));
+    g.steps.push({ id: uid(), text: text.slice(0, 100), rasa: r, done: false });
+    saveLadders(); renderLadders(); return;
+  }
+  const toggle = e.target.closest("[data-toggle]");
+  if (toggle) {
+    const [gid, sid] = toggle.dataset.toggle.split(":");
+    const st = ladders.find(x => x.id === gid)?.steps.find(s => s.id === sid);
+    if (st) { st.done = !st.done; saveLadders(); renderLadders(); } return;
+  }
+  const rasa = e.target.closest("[data-rasa]");
+  if (rasa) {
+    const [gid, sid] = rasa.dataset.rasa.split(":");
+    const st = ladders.find(x => x.id === gid)?.steps.find(s => s.id === sid);
+    if (st) {
+      let r = (prompt("Berat rasa sekarang, 0-10? (turun sikit tiap kali kau ulang — tu tandanya berkesan)", String(st.rasa)) || "").trim();
+      st.rasa = Math.max(0, Math.min(10, parseInt(r, 10) || 0));
+      saveLadders(); renderLadders();
+    } return;
+  }
+  const delstep = e.target.closest("[data-delstep]");
+  if (delstep) {
+    const [gid, sid] = delstep.dataset.delstep.split(":");
+    const g = ladders.find(x => x.id === gid);
+    if (g) { g.steps = g.steps.filter(s => s.id !== sid); saveLadders(); renderLadders(); } return;
+  }
+  const delgoal = e.target.closest("[data-delgoal]");
+  if (delgoal) {
+    if (confirm("Padam matlamat ni dan semua langkahnya?")) {
+      ladders = ladders.filter(x => x.id !== delgoal.dataset.delgoal);
+      saveLadders(); renderLadders();
+    }
+  }
+});
+
 /* ================= Init ================= */
+loadLadders();
 loadSessions();
 </script>
 </body>
